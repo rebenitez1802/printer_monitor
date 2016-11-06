@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+  <title>Starter Template - Materialize</title>
+
+  <!-- CSS  -->
+  {% load static %}
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="{% static 'css/materialize.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="{% static 'css/style.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="{% static 'css/jquery.dataTables.min.css' %}" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+ 
+ {% include '_header.html' %} 
+  
+
+
+  <div class="container">
+<div id="rt-error-body">
+  <div class="rt-container">
+    <div class="component-content">
+      <div class="rt-grid-12">
+        <div class="rt-block">
+          <div class="rt-error-box custom-404">
+            <div>
+            <h1 class="error-title title">404</h1>
+            <h2 class="error-message">Page is Missing</h2>
+            <div class="error-content">
+            <p>The page you requested cannot be found.</p>
+            <p><a href="/"><span>Return to the Homepage</span></a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+ {% include '_footer.html' %} 
+
+
+
+  <!--  Scripts-->
+  <script src="{% static 'js/jquery-3.1.1.min.js' %}"></script>
+  <script src="{% static 'js/materialize.js' %}"></script>
+  <script src="{% static 'js/init.js'%}"></script>
+  
+  <script src="{% static 'js/jquery.dataTables.min.js'%}"></script>
+</body>
+</html>

@@ -14,6 +14,8 @@ from .util.xlsmaker import generatePrinterReportXls
 from wsgiref.util import FileWrapper
 
 # Create your views here.
+def _404(request):
+	return render(request, '404.html')
 def logout_view(request):
     logout(request)
     return redirect('printers.views.login_view')

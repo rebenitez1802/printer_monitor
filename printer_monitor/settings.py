@@ -37,7 +37,7 @@ LOGIN_URL = 'printers.views.login_view'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 XML_PATH ='/opt/apps/printer-monitor_env/printer_monitor/xml'
 
 # Application definition

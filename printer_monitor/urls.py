@@ -16,9 +16,10 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from django.conf.urls import include
-
+from django.views.generic.base import RedirectView
 
 urlpatterns = [
+    url(r'^$', RedirectView.as_view(url='customer/')),
     url(r'^admin/', admin.site.urls),
     url(r'^report_builder/', include('report_builder.urls')),
     
@@ -36,3 +37,4 @@ urlpatterns = [
     
 
 ]
+handler404 = 'printers.views._404'

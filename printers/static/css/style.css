@@ -12,12 +12,17 @@ body {
 html {
     display: table;
     margin: auto;
+
 }
+
 body {
     display: table-cell;
     vertical-align: middle;
+    min-width: 1080px;
 }
-
+#lgin-page {
+    max-width: 300px;
+}
 .main_table{
 	font-size: 12px;
 }
