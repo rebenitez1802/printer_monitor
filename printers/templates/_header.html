@@ -1,0 +1,18 @@
+{% load static %}
+ <nav class="light-blue lighten-1" role="navigation">
+    <div class="nav-wrapper container">
+      
+        <img src="{% static 'images/ixon-logo.png' %}" alt="" class="brand-logo responsive-img valign profile-image-login">
+      
+      <ul class="right hide-on-med-and-down">
+        <li><a href="/logout">Logout</a></li>
+        <li><a href="/report">Generate Report</a></li>
+      </ul>
+
+      <ul id="nav-mobile" class="side-nav">
+        <li><a href="/logout">Logout</a></li>
+        <li><a href="/report">Generate Report</a></li>
+      </ul>
+      <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+    </div>
+  </nav>

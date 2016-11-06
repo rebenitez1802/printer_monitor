@@ -20,6 +20,7 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_ROUTES = {
   'printers.tasks.monitorReportMail': {'queue': 'mrp'},
   'printers.tasks.procesXmlFiles': {'queue': 'pxml'},
+  'printers.tasks.monitorAlertMail': {'queue': 'ma'},
   
 }
 CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
@@ -32,16 +33,18 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '_$+q430+k+c2byigq-hhur1=oua-s5aginzk(t=#w-jln(^ymf'
-
+LOGIN_URL = 'printers.views.login_view'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+XML_PATH ='/opt/apps/printer-monitor_env/printer_monitor/xml'
 
 # Application definition
 
 INSTALLED_APPS = [
+    'rest_framework',
+    'report_builder',
     'djcelery',
     'printers',
     'django.contrib.admin',
@@ -71,6 +74,8 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
@@ -94,7 +99,8 @@ DATABASES = {
         'USER': 'root',#'bnapkin2011',                      # Not used with sqlite3.
         'PASSWORD': 'system2050',#'Rh$*7hc|I\b(IbU',                  # Not used with sqlite3. 'Rh$*7hc|I\b(IbU'
         'HOST': '',#'127.0.0.1',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'PORT': '', 
+        #'CONN_MAX_AGE': 300                     # Set to empty string for default. Not used with sqlite3.
     }
 }
 

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+  <title>Center</title>
+
+  <!-- CSS  -->
+  {% load static %}
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="{% static 'css/materialize.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="{% static 'css/style.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="{% static 'css/jquery.dataTables.min.css' %}" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+  {% include '_header.html' %} 
+
+
+  <div class="container">
+   
+
+
+    <div class="section" id="result">
+
+      <div class="row">
+        <form class="">{% csrf_token %}
+          
+            <div class="input-field col s4">
+              <i class="material-icons prefix">today</i>
+              <input type="date" id="date_from" class="datepicker">
+            
+              <label class="active" for="date_from">From</label>
+            </div>
+            <div class="input-field col s4">
+              <i class="material-icons prefix">today</i>
+              <input type="date" id="date_to" class="datepicker">
+              <label class="active" for="date_to">To</label>
+            </div>
+            <div class="input-field col s2">
+             <select id="center_sel">
+                <option value="" disabled selected>Choose Center</option>
+                <option value="">All</option>
+                {% for c in centers %}
+                  <option value="{{ c.id }}">{{ c.name }}</option>
+                {% endfor %}
+              </select>
+              <label for="center_sel">Materialize Select</label>
+             </div>
+
+            <div class="input-field col s2">
+              <a id="submit-btn" class="waves-effect waves-light btn col s12">Filter <i class="material-icons right">fast_forward</i></a>
+
+            </div>
+             
+        </form>
+
+      </div>
+      <div class="row">
+        <div class="input-field col s3 right">
+              <a id="pdf-btn" class="waves-effect waves-light btn col s12">Download PDF <i class="material-icons right">description</i></a>
+
+        </div>
+        <div class="input-field col s3 right">
+              <a id="xls-btn" class="waves-effect waves-light btn col s12">Download XLS <i class="material-icons right">description</i></a>
+
+        </div>
+
+      </div>
+      <table id="example" class="display main_table" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>Date Report</th>
+                <th>Serial Number</th>
+                
+                <!--<th>Model</th>-->
+                <th>Status</th>
+                <th>Ip</th>
+                <th>Pages</th>
+                <th>Toner Level</th>
+                <th>Host Name</th>
+                <!--<th>Mac Address</th> -->
+             
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>Date Report</th>
+                <th>Serial Number</th>
+                
+                <!--<th>Model</th>-->
+                <th>Status</th>
+                <th>Ip</th>
+                <th>Pages</th>
+                <th>Toner Level</th>
+                <th>Host Name</th>
+                <!--<th>Mac Address</th> -->
+            </tr>
+        </tfoot>
+      </table>
+
+    </div>
+    <br><br>
+
+  {% include '_footer.html' %} 
+
+  <!--  Scripts-->
+  <script src="{% static 'js/jquery-3.1.1.min.js' %}"></script>
+  <script src="{% static 'js/materialize.js' %}"></script>
+  <script src="{% static 'js/init.js'%}"></script>
+  <script src="{% static 'js/jquery.dataTables.min.js'%}"></script>
+  <script>
+    
+    var url =  '/api/report/printerReport';
+        
+    var dataTable = null;
+    function loadDT(){
+      
+      var params = '?';
+      if($('#date_from').val() !== '' && $('#date_to').val() !== '' ) {
+        
+        if(new Date($('#date_to').val()) > new Date($('#date_from').val())){
+          params = params +'from='+$('#date_from').val()+'&to='+$('#date_to').val();
+             
+        }else{
+           Materialize.toast('The date "from"  must be grather then "to"', 2500);
+        }
+      }
+      if($('#center_sel').val() !== null){
+        if (params !== '?'){
+          params = params+'&';
+        }
+        params=params +'center_id='+$('#center_sel').val();
+      }
+
+
+      if(params !== '?'){
+        dataTable.ajax.url(url+params);
+        dataTable.ajax.reload();
+      }else{
+        Materialize.toast('You must select Filter', 2500);
+      }
+      
+      
+    }
+    $( document ).ready(function() {
+      $('select').material_select();
+      dataTable = $('#example').DataTable( {
+        "ajax": url,
+        "columns": [
+            { "data": "date" },
+            { "data": "serial_number" },
+            
+           // { "data": "model" },
+            { "data": 'status'},
+            { "data": "ip_address" },
+            { "data": "pages_printed" },
+            { "data": "toner_level" },
+            { "data": "host_name" },
+            //{ "data": "mac_address" },
+            
+        ]
+        });
+       $('#submit-btn').click(function(){
+          loadDT();
+
+       });
+       $('#pdf-btn').click(function(){
+          var urlpdf = '/report/generatePdf'
+          var params = '?format=pdf';
+          if($('#date_from').val() !== '' && $('#date_to').val() !== '' ) {
+            
+            if(new Date($('#date_to').val()) > new Date($('#date_from').val())){
+              params = params +'&from='+$('#date_from').val()+'&to='+$('#date_to').val();
+                 
+            }else{
+               Materialize.toast('The date "from"  must be grather then "to"', 2500);
+            }
+          }
+          if($('#center_sel').val() !== null){
+            
+            params=params +'&center_id='+$('#center_sel').val();
+          }
+          window.open(urlpdf+params,'_blank')
+
+          
+       });
+       $('#xls-btn').click(function(){
+          var urlpdf = '/report/generatePdf'
+          var params = '?format=xls';
+          if($('#date_from').val() !== '' && $('#date_to').val() !== '' ) {
+            
+            if(new Date($('#date_to').val()) > new Date($('#date_from').val())){
+              params = params +'&from='+$('#date_from').val()+'&to='+$('#date_to').val();
+                 
+            }else{
+               Materialize.toast('The date "from"  must be grather then "to"', 2500);
+            }
+          }
+          if($('#center_sel').val() !== null){
+            
+            params=params +'&center_id='+$('#center_sel').val();
+          }
+          window.open(urlpdf+params,'_blank')
+
+          
+       });
+    });
+    /*
+status: "Advertencia",
+pages_printed: 1104,
+toner_level: "K(53) ",
+host_name: "FLOSUPDEN-0505",
+mac_address: "00:1D:60:85:F7:44",
+date: "2016-10-22T20:07:02.472495+00:00",
+serial_number: "ZDBQBJCH30005ZP ",
+model: "Samsung M332x 382x 402x Series",
+ip_address: "190.1.76.65",
+printer_id: 8
+    */
+  </script>
+
+  </body>
+</html>

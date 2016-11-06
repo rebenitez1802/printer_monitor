@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Customer, Center,Printer, MailsToProcess, PrinterReport
+from .models import Customer, Center,Printer, MailsToProcess, PrinterReport,Alert,AlertAttributes,AlertEmailGroup,AlertEmailGroupRecivers
 from django import forms
 # Register your models here.
 
@@ -60,9 +60,30 @@ class MailsToProcessAdmin(admin.ModelAdmin):
 
 class PrinterReportAdmin(admin.ModelAdmin):
 	model = PrinterReport
-	list_display =('date', 'serial_number', 'pages_printed','toner_level','staus')
+	list_display =('date', 'serial_number', 'pages_printed','toner_level','status')
+
+class AlertAttributesTubular(admin.TabularInline):
+	model = AlertAttributes
+	extra = 0
+
+class AlertAdmin(admin.ModelAdmin):
+	model = Alert
+	list_display = ('date','alerttype')
+	inlines=[AlertAttributesTubular]
+
+class AlertEmailGroupReciversTubular(admin.TabularInline):
+	model = AlertEmailGroupRecivers
+	extra = 0
+
+class AlertEmailGroupAdmin(admin.ModelAdmin):
+	model= AlertEmailGroup
+	list_display = ('alerttype','send_email')
+	inlines = [AlertEmailGroupReciversTubular]
 
 admin.site.register(Customer, CustomerAdmin)
 admin.site.register(Center, CenterAdmin)
 admin.site.register(Printer, PrinterAdmin)
 admin.site.register(MailsToProcess, MailsToProcessAdmin)
+admin.site.register(PrinterReport, PrinterReportAdmin)
+admin.site.register(Alert,AlertAdmin)
+admin.site.register(AlertEmailGroup, AlertEmailGroupAdmin)

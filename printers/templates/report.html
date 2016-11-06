@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+  <title>Starter Template - Materialize</title>
+
+  <!-- CSS  -->
+  {% load static %}
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="{% static 'css/materialize.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="{% static 'css/style.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="{% static 'css/jquery.dataTables.min.css' %}" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+ 
+ {% include '_header.html' %} 
+  
+
+
+  <div class="container">
+   
+
+   
+
+    <div class="section main_table" id="result">
+      
+      <table id="example" class="display" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                
+                <th>Customer</th>
+                <th>Total Pages</th>
+                <th>Total Center</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Email</th>
+                <th>Rut</th>
+                <th>Total Printers</th>
+                <th>Total Disconect</th>
+                <th>Total Low Toner</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                
+                <th>Customer</th>
+                <th>Total Pages</th>
+                <th>Total Center</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Email</th>
+                <th>Rut</th>
+                <th>Total Printers</th>
+                <th>Total Disconect</th>
+                <th>Total Low Toner</th>
+            </tr>
+        </tfoot>
+      </table>
+
+    </div>
+    <br><br>
+
+   
+  </div>
+
+   {% include '_footer.html' %} 
+
+
+
+  <!--  Scripts-->
+  <script src="{% static 'js/jquery-3.1.1.min.js' %}"></script>
+  <script src="{% static 'js/materialize.js' %}"></script>
+  <script src="{% static 'js/init.js'%}"></script>
+  
+  <script src="{% static 'js/jquery.dataTables.min.js'%}"></script>
+  <script>
+    $( document ).ready(function() {
+       
+       $('#example').DataTable( {
+        "ajax": '/api/report',
+        "createdRow": function (row, data, index) {
+          console.log(data);
+          $(row).addClass('data-row');
+          $(row).attr('data_id',data.customer_id);
+        },
+        "columns": [
+            
+            { "data": "name"},
+            { "data": "total_pages" },
+            { "data": "total_centers" },
+            { "data": "phone" },
+            { "data": "address" },
+            { "data": "email" },
+            { "data": "rut" },
+            { "data": "total_printers" },
+            { "data": "total_disconect" },
+            { "data": "total_low_toner" },
+        ]
+        });
+    });
+    $('#example').on('click', 'tr.data-row', function () {
+      
+      window.location.href = ''+$(this).attr('data_id');
+    });
+  </script>
+
+  </body>
+</html>

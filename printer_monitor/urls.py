@@ -15,7 +15,24 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from django.conf.urls import include
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^report_builder/', include('report_builder.urls')),
+    
+    url(r'^customer/([0-9]+)?$', 'printers.views.report'),
+    url(r'^center/([0-9]+)?$', 'printers.views.center'),
+    url(r'^report/$', 'printers.views.report_data'),
+    url(r'^login$', 'printers.views.login_view'),
+    url(r'^logout$', 'printers.views.logout_view'),
+    url(r'^report/generatePdf$', 'printers.views.generatePrinterReportPdf'),
+    
+    url(r'^api/report/center/([0-9]+)?$', 'printers.views.reportByCenter'),
+    url(r'^api/report/customer/([0-9]+)$', 'printers.views.reportByCostumer'),
+    url(r'^api/report/$', 'printers.views.reportJson'),
+    url(r'^api/report/printerReport$', 'printers.views.reporPrinterJson')
+    
+
 ]

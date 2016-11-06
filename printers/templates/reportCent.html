@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+  <title>Center</title>
+
+  <!-- CSS  -->
+  {% load static %}
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="{% static 'css/materialize.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="{% static 'css/style.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="{% static 'css/jquery.dataTables.min.css' %}" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+  {% include '_header.html' %} 
+
+
+  <div class="container">
+   
+
+   
+
+    <div class="section" id="result">
+      <table id="example" class="display main_table" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>Serial Number</th>
+                <th>Brand</th>
+                <th>Model</th>
+                <th>Status</th>
+                <th>Ip</th>
+                <th>Pages</th>
+                <th>Toner Level</th>
+                <th>Host Name</th>
+             
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+               <th>Serial Number</th>
+                <th>Brand</th>
+                <th>Model</th>
+                <th>Status</th>
+                <th>Ip</th>
+                <th>Pages</th>
+                <th>Toner Level</th>
+                <th>Host Name</th>
+            </tr>
+        </tfoot>
+      </table>
+
+    </div>
+    <br><br>
+
+  {% include '_footer.html' %} 
+
+  <!--  Scripts-->
+  <script src="{% static 'js/jquery-3.1.1.min.js' %}"></script>
+  <script src="{% static 'js/materialize.js' %}"></script>
+  <script src="{% static 'js/init.js'%}"></script>
+  <script src="{% static 'js/jquery.dataTables.min.js'%}"></script>
+  <script>
+    var center = '{{center_id}}'
+    
+    var url =  '/api/report/center/'
+    if (center !== 'None' && center !== undefined){
+      url = url+center
+    }
+    $( document ).ready(function() {
+       $('#example').DataTable( {
+        "ajax": url,
+        "columns": [
+            { "data": "serial_number" },
+            { "data": "brand" },
+            { "data": "model" },
+            {"data": 'last_report.status'},
+            { "data": "ip_address" },
+            { "data": "last_report.pages_printed" },
+            { "data": "last_report.toner_level" },
+            { "data": "host_name" }
+            
+        ]
+        });
+    });
+  </script>
+
+  </body>
+</html>
