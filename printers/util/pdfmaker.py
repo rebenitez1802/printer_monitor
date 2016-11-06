@@ -13,7 +13,7 @@ def generatePrinterReport(data,headers):
    
   styleSheet = getSampleStyleSheet()
   
-  I = Image('/opt/apps/printer-monitor_env/printer_monitor/printers/static/images/ixon-logo.png')
+  I = Image('printers/static/images/ixon-logo.png')
   #I.drawHeight = 1.25*inch*I.drawHeight / I.drawWidth
   #I.drawWidth = 1.25*inch
   header = [[I],headers]
