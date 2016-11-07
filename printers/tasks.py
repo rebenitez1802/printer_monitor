@@ -79,7 +79,7 @@ def monitorReportMail(server, username, password, markasRead = True):
 		tuple9 = email.utils.parsedate(msg.get('date'))
 		dt_obj = datetime(*tuple9[0:6])
 		print dt_obj
-		files = emailtFetcher.save_attachment(msg,'/opt/apps/printer-monitor_env/printer_monitor/xml',idx)
+		files = emailtFetcher.save_attachment(msg,settings.XML_PATH,idx)
 		for f in files:
 			print f
 			obj = MailsToProcess(xml_path = f, date= dt_obj, done=False)
