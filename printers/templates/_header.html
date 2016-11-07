@@ -6,16 +6,16 @@
         <img src="{% static 'images/ixon-logo.png' %}" alt="" class="brand-logo responsive-img valign profile-image-login">
       
       <ul class="right hide-on-med-and-down">
-      {% if  request.user.is_superuser  or request.user.groups %}
-        <li><span>Hi, {{request.user.groups}} /</span></li>
-      {% endif %}
-        <li><a href="/logout">Logout</a></li>
-        <li><a href="/report">Generate Report</a></li>
+      
+        <li><a href="/logout/">Logout</a></li>
+        <li><a href="/report/">Generate Report</a></li>
+        <li><a href="/admin/">Admin</a></li>
       </ul>
 
       <ul id="nav-mobile" class="side-nav">
-        <li>><a href="/logout">Logout</a></li>
-        <li><a href="/report">Generate Report</a></li>
+        <li>><a href="/logout/">Logout</a></li>
+        <li><a href="/report/">Generate Report</a></li>
+        <li><a href="/admin/">Admin</a></li>
       </ul>
       <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
     </div>
