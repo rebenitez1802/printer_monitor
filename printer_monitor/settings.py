@@ -44,7 +44,7 @@ XML_PATH ='/opt/apps/printer-monitor_env/printer_monitor/xml'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 465
 EMAIL_HOST_USER = 'rebenitez1802@gmail.com'
-EMAIL_HOST_PASSWORD = '18466309re##$'
+EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_SSL = True
 
 # Application definition
