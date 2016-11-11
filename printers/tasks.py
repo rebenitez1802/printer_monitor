@@ -4,12 +4,14 @@ import os, re
 from .util.email_fetcher import FetchEmail
 from celery import shared_task
 from datetime import datetime
-from .models import MailsToProcess, Printer, PrinterReport,Alert, AlertAttributes
+from .models import MailsToProcess, Printer, PrinterReport,Alert, AlertAttributes, AlertEmailGroupRecivers
 import email.utils
 import xml.etree.ElementTree as ET
 from django.core.exceptions import ObjectDoesNotExist
 import django
 from django.conf import settings
+from django.core.mail import send_mail
+
 
 
 def saveAlert(alertType, emailmsg):
@@ -48,6 +50,66 @@ def saveAlert(alertType, emailmsg):
 				att.save()
 				
 		#Handle alert toner emails
+def getAllAlertsMailsMsg(alerts):
+	m = []
+	for alerttype,listt in alerts.items():
+		ms={}
+		ms['subject'] = 'Alertas recibidas de tipo: %s' % alerttype
+		ms['alert-type'] = alerttype
+		html = '''\
+			<html>
+				<head></head>
+				<body>
+					<p>El presente correo es para informar que se generaron ___n-alertas___ de tipo: <b>"___alerttype___"</b></p>
+					<h3>Lista de Alertas</h3>
+					___table___
+					<p>por favor no respoder este correo</p>
+				</body>
+			</html>
+		'''
+		html = html.replace('___n-alertas___', str(len(listt)))
+		html = html.replace('___alerttype___', listt[0].getAlertTypePretty())
+		table = '<table>'
+		#generate table
+		th = '<tr>'
+		for att in listt[0].alertattributes_set.all():
+			th =th+'<th>%s</th>' % att.key
+		th =th+'</tr>'
+		table = table+th
+		for al in listt:
+			tr = '<tr>'
+			for att in al.alertattributes_set.all():
+				tr = tr + '<td>%s</td>' % att.value
+			tr = tr+'</tr>'
+			table = table+tr
+		table = table+'</table>'
+		html = html.replace('___table___',table)
+		ms['msg'] = html
+		m.append(ms)
+	return m
+
+@shared_task
+def sendEmailAlert(setProcessed = True):
+	alertas = Alert.objects.filter(processed = False)
+	alertsByTypes = {}
+
+	for al in alertas:
+		if not al.alerttype in alertsByTypes:
+			alertsByTypes[al.alerttype] = []
+		alertsByTypes[al.alerttype].append(al)
+	msgs = getAllAlertsMailsMsg(alertsByTypes)
+	for m in msgs:
+		recip_list = AlertEmailGroupRecivers.objects.filter(alert_group__alerttype = m['alert-type'], alert_group__send_email = True)
+		recip=[]
+		for r in recip_list:
+			recip.append(r.email)
+		if len(recip) > 0:
+			send_mail(m['subject'],'','paginas@ixon.cl',recip,html_message = m['msg'])
+	if setProcessed:
+		for al in alertas:
+			al.processed = True
+			al.save()
+	return True
 
 @shared_task
 def monitorAlertMail(server,username, password, markasRead= True):

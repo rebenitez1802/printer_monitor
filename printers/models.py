@@ -140,6 +140,14 @@ class PrinterReport(models.Model):
 class Alert(models.Model):
 	alerttype = models.CharField(max_length = 200, choices = ALERT_TYPE)
 	date = models.DateTimeField(auto_now = True)
+	processed = models.BooleanField(default=False)
+	def getAlertTypePretty(self):
+		ret = 'Desconocido'
+		for a,y in ALERT_TYPE:
+			if a == self.alerttype:
+				ret = y
+				break
+		return ret
 
 class AlertAttributes(models.Model):
 	alert = models.ForeignKey(Alert, on_delete=models.CASCADE)
