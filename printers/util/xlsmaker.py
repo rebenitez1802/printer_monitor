@@ -19,7 +19,12 @@ def generatePrinterReportXls(data,headers,cols, backgroundStyles=None):
 			for c in ws.rows[s[0]]:
 				c.fill =PatternFill("solid", fgColor=s[1])
 				#print c
-	'saving to disk file %s' % path
-	wb.save(filename= path)
-	'saved %s' % path
+	print 'saving to disk file %s' % path
+	try:
+		wb.save(filename= path)
+	except Exception as e:
+		print(type(inst))    # the exception instance
+		print(inst.args)     # arguments stored in .args
+		print(inst)
+	print 'saved %s' % path
 	return filename

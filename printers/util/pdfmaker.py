@@ -36,7 +36,13 @@ def generatePrinterReport(data,headers, aditionalStyles = None):
   elements.append(t)
   # write the document to disk
   print 'Building File %s' % path
-  doc.build(elements)
+  try:
+    doc.build(elements)
+  except Exception as e:
+    print(type(inst))    # the exception instance
+    print(inst.args)     # arguments stored in .args
+    print(inst)
+
   print 'Returning %s' % filename
   return filename
 
