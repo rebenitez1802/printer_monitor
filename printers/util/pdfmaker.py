@@ -37,6 +37,8 @@ def generatePrinterReport(data,headers, aditionalStyles = None):
   # write the document to disk
   print 'Building File %s' % path
   try:
+    doc2 = SimpleDocTemplate(filename, pagesize=landscape(letter))
+    doc2.build(elements)
     doc.build(elements)
   except Exception as e:
     print(type(inst))    # the exception instance
