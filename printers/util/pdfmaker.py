@@ -3,7 +3,7 @@ from reportlab.lib.pagesizes import letter, inch, landscape
 from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Table, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
  
-def generatePrinterReport(data,headers):
+def generatePrinterReport(data,headers, aditionalStyles = None):
   filename = 'pdf.pdf'
   path = "printers/static/download/" + filename
 
@@ -18,14 +18,20 @@ def generatePrinterReport(data,headers):
   #I.drawWidth = 1.25*inch
   header = [[I],headers]
   th = Table(header,hAlign='LEFT', style = [('SPAN',(0,0),(2,0)),('BOX',(0,0),(-1,-1),2,colors.black)])
-
-  t=Table(data,style=[
+  style = [
                       ('BOX',(0,0),(-1,-1),2,colors.black),
                       ('GRID',(0,0),(-1,-1),0.5,colors.black),
                       ('FONTSIZE', (0,0),(-1,-1,), 8),
                       ('ALIGN',(0,0),(-1,-1),'CENTER'),
-  ])
+                      #('BACKGROUND',(-1,0),(-1,-1),colors.red),
+                      #('BACKGROUND',(0,0),(0,-1),colors.red)
+  ]
+  if aditionalStyles:
+    style = style + aditionalStyles
+
+  t=Table(data,style=style)
   elements.append(th)
+  elements.append(Table([['  ','Reporte con mas de 7 dias'],[[]],['  ','No hay Reporte Valido Disponible']],hAlign='RIGHT', style=[('BACKGROUND',(0,0),(0,0),colors.yellow),('BACKGROUND',(0,2),(0,2),colors.red)]))
   elements.append(Spacer(0.5*inch,0.5*inch))
   elements.append(t)
   # write the document to disk

@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
-  <title>Customer</title>
+  <title>Centros</title>
 
   <!-- CSS  -->
   {% load static %}
@@ -17,8 +17,11 @@
   {% include '_header.html' %}
   
   </div>
-
-
+   <div class="col s12 breadcrumb-cont">
+        {% for b in breadcrumbs %}
+          <a href="{{b.url}}" class="breadcrumb">{{b.title}}</a>
+        {% endfor %}
+      </div>
   <div class="container">
    
 
@@ -28,24 +31,15 @@
       <table id="example" class="display" cellspacing="0" width="100%">
         <thead>
             <tr>
-                <th>Center</th>
-                <th>City</th>
-                <th>Total Printer</th>
-                <th>Total Pages</th>
-                <th>Total Disconect</th>
-                <th>Total Low Toner</th>
+                <th>Centro</th>
+                <th>Ciudad</th>
+                <th>Impresoras</th>
+                <th>P&aacute;ginas</th>
+                <th>Desconetadas</th>
+                <th>Niv&eacute;l de Toner Bajo</th>
             </tr>
         </thead>
-        <tfoot>
-            <tr>
-               <th>Center</th>
-                <th>City</th>
-                <th>Total Printer</th>
-                <th>Total Pages</th>
-                <th>Total Disconect</th>
-                <th>Total Low Toner</th>
-            </tr>
-        </tfoot>
+      
       </table>
 
     </div>
@@ -68,6 +62,9 @@
     var url =  '/api/report/customer/{{customer_id}}'
     $( document ).ready(function() {
        $('#example').DataTable( {
+        "language": {
+                "url": "/static/js/dataTables.spanish.lang"
+        },
         "ajax": url,
         "createdRow": function (row, data, index) {
           console.log(data);

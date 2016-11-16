@@ -3,14 +3,16 @@ from __future__ import absolute_import
 import os, re
 from .util.email_fetcher import FetchEmail
 from celery import shared_task
-from datetime import datetime
+from datetime import datetime, timedelta
+
 from .models import MailsToProcess, Printer, PrinterReport,Alert, AlertAttributes, AlertEmailGroupRecivers
-import email.utils
+import email.utils, urllib
 import xml.etree.ElementTree as ET
 from django.core.exceptions import ObjectDoesNotExist
 import django
 from django.conf import settings
 from django.core.mail import send_mail
+from django.db.models import Q
 
 
 
@@ -23,18 +25,31 @@ def saveAlert(alertType, emailmsg):
 		a.date = dt_obj
 		a.save()
 		for line in emailmsg.get_payload().split('\n'):
+			x = urllib.quote('Dirección__SPACE__IP:__SPACE__').replace('__SPACE__',' ').replace('%','=')
+			print 'this is %s == %s? ---> %s' % (line,x, (x in line))
+			
 			if 'Nombre de Equipo: ' in line:
 				att = AlertAttributes(alert_id= a.id, key = 'name', value= line.split('Nombre de Equipo: ')[1])
 				att.save()
 			elif 'Mac ' in line:
 				att = AlertAttributes(alert_id= a.id, key = 'mac', value= line.split('Mac ')[1])
 				att.save()
-			elif 'Dirección IP: ' in line:
-				att = AlertAttributes(alert_id= a.id, key = 'ip_address', value= line.split('Dirección IP: ')[1])
+			elif urllib.quote('Dirección__SPACE__IP__COLON____SPACE__').replace('__COLON__',':').replace('__SPACE__',' ').replace('%','=') in line:
+				att = AlertAttributes(alert_id= a.id, key = 'ip_address', value= line.split(': ')[1])
 				att.save()
-			elif 'Número de Serie: ' in line:
-				att = AlertAttributes(alert_id= a.id, key = 'serial_number', value= line.split('Número de Serie: ')[1])
+			elif urllib.quote('Número__SPACE__de__SPACE__Serie__COLON____SPACE__').replace('__SPACE__', ' ').replace('__COLON__',':').replace('%','=') in line:
+				att = AlertAttributes(alert_id= a.id, key = 'serial_number', value= line.split(': ')[1])
 				att.save()
+				try:
+					p = Printer.objects.get(serial_number = att.value)
+				except ObjectDoesNotExist:
+					p = None
+				except Exception:
+					p = None
+				if p:
+					a.printerOwner_id = p.id
+					a.save()
+
 			elif 'Contador Total: ' in line:
 				att = AlertAttributes(alert_id= a.id, key = 'total_count', value= line.split('Contador Total: ')[1])
 				att.save()
@@ -45,8 +60,8 @@ def saveAlert(alertType, emailmsg):
 			elif 'Modelo: ' in line:
 				att = AlertAttributes(alert_id= a.id, key = 'model', value= line.split('Modelo: ')[1])
 				att.save()
-			elif 'Nivel de Tóner en: ' in line:
-				att = AlertAttributes(alert_id= a.id, key = 'toner_level', value= line.split('Nivel de Tóner en: ')[1])
+			elif urllib.quote('Nivel__SPACE__de__SPACE__Tóner__SPACE__en__COLON____SPACE__').replace('__COLON__',':').replace('__SPACE__',' ').replace('%','=') in line:
+				att = AlertAttributes(alert_id= a.id, key = 'toner_level', value= line.split(': ')[1])
 				att.save()
 				
 		#Handle alert toner emails
@@ -72,12 +87,20 @@ def getAllAlertsMailsMsg(alerts):
 		table = '<table>'
 		#generate table
 		th = '<tr>'
+		th =th+'<th>Cliente</th><th>Centro</th><th>Numero de Serie</th>'
 		for att in listt[0].alertattributes_set.all():
 			th =th+'<th>%s</th>' % att.key
 		th =th+'</tr>'
 		table = table+th
 		for al in listt:
 			tr = '<tr>'
+			if al.printerOwner:
+				tr = tr + '<td>%s</td>' % al.printerOwner.center.customer.name
+				tr = tr + '<td>%s</td>' % al.printerOwner.center.name
+				tr = tr + '<td>%s</td>' % al.printerOwner.serial_number
+			else:
+				tr = tr + '<td></td><td></td><td></td>'
+
 			for att in al.alertattributes_set.all():
 				tr = tr + '<td>%s</td>' % att.value
 			tr = tr+'</tr>'
@@ -87,6 +110,21 @@ def getAllAlertsMailsMsg(alerts):
 		ms['msg'] = html
 		m.append(ms)
 	return m
+
+@shared_task
+def generateNoReportAlert(maxDaysNoReport = 7):
+	l_printers = Printer.objects.filter(Q(last_report__date__lte=datetime.now()-timedelta(days=maxDaysNoReport)) | Q(last_report__status = 'Desconectado') | Q(last_report__isnull = True ))
+	for p in l_printers:
+		a = Alert()
+		a.printerOwner_id = p.id
+		a.date = datetime.now()
+		a.alerttype = '[alert-no_report]'
+		a.save()
+		att = AlertAttributes(alert_id= a.id, key = 'fecha ultimo reporte', value= p.last_report.date.strftime('%d-%m-%Y at %H:%M:%S') if p.last_report else 'No posee Reporte')
+		att.save()
+		att2 = AlertAttributes(alert_id= a.id, key = 'status', value= p.last_report.status if p.last_report else 'No posee Status')
+		att2.save()
+	
 
 @shared_task
 def sendEmailAlert(setProcessed = True):
@@ -137,16 +175,16 @@ def monitorReportMail(server, username, password, markasRead = True):
 	emails = emailtFetcher.fetch_unread_messages(markasRead)
 	print 'processing %d emails' % len(emails)
 	for idx, msg in enumerate(emails):
-		print 'procesing email q'
+		#print 'procesing email q'
 		tuple9 = email.utils.parsedate(msg.get('date'))
 		dt_obj = datetime(*tuple9[0:6])
-		print dt_obj
+		#print dt_obj
 		files = emailtFetcher.save_attachment(msg,settings.XML_PATH,idx)
 		for f in files:
-			print f
+			#print f
 			obj = MailsToProcess(xml_path = f, date= dt_obj, done=False)
 			obj.save()
-			print obj.id
+			#print obj.id
 	emailtFetcher.close_connection()
 	return True
 #this method must be erased
@@ -222,6 +260,11 @@ def procesXmlFiles(createprinter = False):
 					if attr[1].text:
 						print attr[1].text
 						obj.pages_printed = attr[1].text
+						try:
+							int(obj.pages_printed)
+							obj.is_valid = True
+						except ValueError:
+							obj.is_valid = False
 			obj.date = datetime.now()
 			try:
 				p = Printer.objects.get(serial_number = obj.serial_number)

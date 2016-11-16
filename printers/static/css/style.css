@@ -20,6 +20,12 @@ body {
     vertical-align: middle;
     min-width: 1080px;
 }
+.breadcrumb-cont {
+	margin-top: 10px;
+	margin-left: 35px;
+	color: #41aecc; 
+
+}
 #lgin-page {
     max-width: 300px;
 }

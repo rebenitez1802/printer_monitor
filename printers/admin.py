@@ -45,6 +45,7 @@ class PrinterAdmin(admin.ModelAdmin):
 	form = PrinterAdminForm
 	model = Printer
 	list_display = (['serial_number', 'brand', 'model', 'get_center',  'get_customer'])
+	exclude = ('last_report',)
 	def get_center(self,obj):
 		return obj.center.name
 	get_center.admin_order_field = 'center'
@@ -68,8 +69,9 @@ class AlertAttributesTubular(admin.TabularInline):
 
 class AlertAdmin(admin.ModelAdmin):
 	model = Alert
-	list_display = ('date','alerttype')
+	list_display = ('date','alerttype','processed')
 	inlines=[AlertAttributesTubular]
+	exclude = ('printerOwner',)
 
 class AlertEmailGroupReciversTubular(admin.TabularInline):
 	model = AlertEmailGroupRecivers

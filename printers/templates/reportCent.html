@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
-  <title>Center</title>
+  <title>Impresoras</title>
 
   <!-- CSS  -->
   {% load static %}
@@ -16,7 +16,12 @@
 <body>
   {% include '_header.html' %} 
 
-
+ <div class="col s12 breadcrumb-cont">
+        {% for b in breadcrumbs %}
+          <a href="{{b.url}}" class="breadcrumb">{{b.title}}</a>
+        {% endfor %}
+      </div>
+  
   <div class="container">
    
 
@@ -26,29 +31,18 @@
       <table id="example" class="display main_table" cellspacing="0" width="100%">
         <thead>
             <tr>
-                <th>Serial Number</th>
-                <th>Brand</th>
-                <th>Model</th>
-                <th>Status</th>
-                <th>Ip</th>
-                <th>Pages</th>
-                <th>Toner Level</th>
-                <th>Host Name</th>
+                <th>N&uacute;mero de Serie</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Estatus</th>
+                <th>IP</th>
+                <th>P&aacute;ginas</th>
+                <th>Niv&eacute;l de Toner</th>
+                <th>Host</th>
              
             </tr>
         </thead>
-        <tfoot>
-            <tr>
-               <th>Serial Number</th>
-                <th>Brand</th>
-                <th>Model</th>
-                <th>Status</th>
-                <th>Ip</th>
-                <th>Pages</th>
-                <th>Toner Level</th>
-                <th>Host Name</th>
-            </tr>
-        </tfoot>
+        
       </table>
 
     </div></div>
@@ -70,12 +64,15 @@
     }
     $( document ).ready(function() {
        $('#example').DataTable( {
+        "language": {
+                "url": "/static/js/dataTables.spanish.lang"
+        },
         "ajax": url,
         "columns": [
             { "data": "serial_number" },
             { "data": "brand" },
             { "data": "model" },
-            {"data": 'last_report.status'},
+            { "data": 'last_report.status'},
             { "data": "ip_address" },
             { "data": "last_report.pages_printed" },
             { "data": "last_report.toner_level" },

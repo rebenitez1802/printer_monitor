@@ -5,9 +5,9 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
-phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
+phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="El formato para el campo es el siguiente: '+999999999'.")
 
-ALERT_TYPE = [('[alert-toner]', 'Alerta de Toner Bajo')]
+ALERT_TYPE = [('[alert-toner]', 'Alerta de Toner Bajo'), ('[alert-no_report]','Alerta de No reporte recibido')]
 
 class Customer(models.Model):
 	name = models.CharField(max_length=200)
@@ -102,7 +102,7 @@ class Printer(models.Model):
 			serial_number = self.serial_number,
 			host_name = self.host_name,
 			ip_address = self.ip_address
-
+			
 			)
 		return dic
 
@@ -123,7 +123,7 @@ class PrinterReport(models.Model):
 	pages_printed = models.IntegerField(blank = True, null=True)
 	status = models.CharField(max_length=200,blank = True, null=True)
 	date = models.DateTimeField()
-
+	is_valid = models.BooleanField(default = False)
 	def as_json(self):
 		return dict(
     	printer_id = self.printerOwner.id,
@@ -141,6 +141,7 @@ class Alert(models.Model):
 	alerttype = models.CharField(max_length = 200, choices = ALERT_TYPE)
 	date = models.DateTimeField(auto_now = True)
 	processed = models.BooleanField(default=False)
+	printerOwner = models.ForeignKey(Printer, on_delete = models.CASCADE, blank =True, null = True)
 	def getAlertTypePretty(self):
 		ret = 'Desconocido'
 		for a,y in ALERT_TYPE:

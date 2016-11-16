@@ -22,13 +22,14 @@ CELERY_ROUTES = {
   'printers.tasks.procesXmlFiles': {'queue': 'pxml'},
   'printers.tasks.monitorAlertMail': {'queue': 'ma'},
   'printers.tasks.sendEmailAlert': {'queue': 'ea'},
+  'printers.tasks.generateNoReportAlert': {'queue': 'nra'},
   
 }
 CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
+MY_MONTHS = [(1,'Enero'),(2,'Febrero'),(3,'Marzo'),(4,'Abril'),(5,'Mayo'),(6,'Junio'),(7,'Julio'),(8,'Agosto'),(9,'Septiembre'),(10,'Octubre'),(11,'Noviembre'),(12,'Diciembre')]
+MAX_YEARS = 10
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
@@ -42,9 +43,9 @@ ALLOWED_HOSTS = ['*']
 XML_PATH ='/opt/apps/printer-monitor_env/printer_monitor/xml'
 
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 465
+EMAIL_PORT = 465 #587
 EMAIL_HOST_USER = 'rebenitez1802@gmail.com'
-EMAIL_HOST_PASSWORD = ''
+EMAIL_HOST_PASSWORD = '18466309re##$'
 EMAIL_USE_SSL = True
 
 # Application definition
@@ -70,6 +71,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'printers.middlewares.NavOptionsMiddleware'
 ]
 
 ROOT_URLCONF = 'printer_monitor.urls'

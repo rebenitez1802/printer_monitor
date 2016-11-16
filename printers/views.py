@@ -1,5 +1,6 @@
 import json,re, datetime
 from django.shortcuts import render
+from django.utils import timezone
 from django.core import serializers
 from django.db.models import Sum, Count, Case, When, IntegerField
 from django.http import HttpResponse
@@ -12,6 +13,8 @@ from django.conf import settings
 from .util.pdfmaker import generatePrinterReport
 from .util.xlsmaker import generatePrinterReportXls
 from wsgiref.util import FileWrapper
+from reportlab.lib import colors
+
 
 # Create your views here.
 def _404(request):
@@ -36,7 +39,7 @@ def login_view(request):
 				
 				return JsonResponse({'msg':'OK', 'status': 'Loged', 'next': _next })
 			else:
-				return JsonResponse({'msg':'Error: Wrong Credentials'}, status = 401)
+				return JsonResponse({'msg':'Error: El usuario y el password no coinciden'}, status = 401)
 
 		 
 		return render(request,'login.html')
@@ -58,44 +61,91 @@ def generatePrinterReportPdf(request):
 	status = models.CharField(max_length=200,blank = True, null=True)
 	date = models.DateTimeField()
 	'''
-	q = PrinterReport.objects.all()
-	fromdate = request.GET.get('from')
-	todate = request.GET.get('to')
-	center = request.GET.get('center_id')
+	q = Printer.objects.all()
+	year = request.GET.get('year')
+	month = request.GET.get('month')
+	customer = request.GET.get('customer')
 	forma = request.GET.get('format')
 	headers = []
-	if todate and fromdate:
-		pat = r'([0-9]{4})\-([0-9]{2})\-([0-9]{2})'
-		if re.search(pat,todate) and re.search(pat,fromdate):
-			headers.append('From: %s' % fromdate)
-			headers.append('To: %s' % todate)
-			q = q.filter(date__range=[fromdate,todate]).order_by('-date')
+	
+	qr = PrinterReport.objects.all()
+	tope = timezone.make_aware(datetime.datetime.now() -datetime.timedelta(days = 7), timezone.get_default_timezone())
+	
+	if year and month:
+		fromdate = '%s-%s-01' % (year,completeZeros(month,2))
+		todate = '%s-%s-01' % (year, completeZeros(str(int(month) + 1),2))
+		
+		
+		if timezone.make_aware( datetime.datetime.strptime(todate,'%Y-%m-%d') - datetime.timedelta(days = 7),timezone.get_default_timezone()) < tope:
+			tope = timezone.make_aware( datetime.datetime.strptime(todate,'%Y-%m-%d') - datetime.timedelta(days = 7),timezone.get_default_timezone())
+		
+
+		qr = qr.filter(date__range=[fromdate,todate]).order_by('-date')
+		headers.append(u'Mes %s-%s' % (month,year))
+		headers.append('')
+
+	
 	else:
+		
 		headers.append('')
 		headers.append('')
-	if center and center != '':
-		q = q.filter(printerOwner__center__id = int(center))
-		headers.append('Center: %s' % Center.objects.get(pk = int(center)).name)
+	print tope
+	if customer:
+		q = q.filter(center__customer__id = int(customer))
+		headers.append('Cliente %s' % Customer.objects.get(pk = int(customer)).name)
+	
+	
 	else:
 		headers.append('')
 	response = None
 	file = None
 	data = []
-	cols = ['IP', 'MAC', 'MODEL', 'SERIAL', 'HOST', 'TONER LEVEL', 'PAGES', 'STATUS', 'DATE']
+	cols = ['IP', 'MAC', 'MODELO', 'SERIAL', 'HOST', 'TONER', 'PAGINAS', 'ESTATUS', 'FECHA']
+	
+	res = {}
+	res['data'] =[ob.as_json() for ob in q]
+	pat = r'[0-9]+'
+	addStyles = []
+	xlsAddStyles = []
+	j = 0 
+	for p in res['data']:
+		p['last_report'] = {}
+		for pr in qr:
+			if pr.is_valid:
+				#print pr.pages_printed
+				if p['serial_number'] == pr.serial_number and re.search(pat, str(pr.pages_printed)):
+					p['last_report'] = pr.as_json()
+					
+					if tope > pr.date:
+						p['warning'] = True
+						addStyles.append(('BACKGROUND',(0,j+1),(-1,j+1),colors.yellow))
+						xlsAddStyles.append((j+1,'FFFF00'))
+					#	print 'warning %s' % j
+					else:
+						p['warning'] = False
+
+					break
+		if not p['last_report']:
+			p['no-report'] = True
+			addStyles.append(('BACKGROUND',(0,j+1),(-1,j+1),colors.red))
+			xlsAddStyles.append((j+1,'FF0000'))
+			#print 'Alert %s' % j
+		j = j + 1
 	if forma == 'pdf':
 		
 		data.append(cols)
-		for p in q:
-			row = [p.ip_address, p.mac_address, p.model, p.serial_number, p.host_name, p.toner_level, p.pages_printed, p.status, p.date.strftime('%d-%m-%Y at %H:%M:%S')]
+		for p in res['data']:
+			row = [p['ip_address'], p['last_report']['mac_address'] if p['last_report'] else '' , p['model'], p['serial_number'], p['host_name'], p['last_report']['toner_level'] if p['last_report'] else '', p['last_report']['pages_printed'] if p['last_report'] else '', p['last_report']['status'] if p['last_report'] else '', p['last_report']['date'] if p['last_report'] else '']
 			data.append(row)
 
-		file ='printers/static/download/'+ generatePrinterReport(data,headers)
+		print len(data)
+		file ='printers/static/download/'+ generatePrinterReport(data,headers,addStyles)
 		
 	if forma == 'xls':
-		for p in q:
-			row = [p.ip_address, p.mac_address, p.model, p.serial_number, p.host_name, p.toner_level, p.pages_printed, p.status, p.date.strftime('%d-%m-%Y at %H:%M:%S')]
+		for p in res['data']:
+			row = [p['ip_address'], p['last_report']['mac_address'] if p['last_report'] else '' , p['model'], p['serial_number'], p['host_name'], p['last_report']['toner_level'] if p['last_report'] else '', p['last_report']['pages_printed'] if p['last_report'] else '', p['last_report']['status'] if p['last_report'] else '', p['last_report']['date'] if p['last_report'] else '']
 			data.append(row)
-		file = 'printers/static/download/'+ generatePrinterReportXls(data,headers,cols)
+		file = 'printers/static/download/'+ generatePrinterReportXls(data,headers,cols,xlsAddStyles)
 
 	f = open(file, "r")
 	response = HttpResponse(FileWrapper(f), content_type='application/%s' % forma)
@@ -105,31 +155,69 @@ def generatePrinterReportPdf(request):
  
 @login_required()
 def report_data(request):
-	q = Center.objects.all() 
+	q = Customer.objects.all() 
 	if not (request.user.groups.filter(name__in = ['PrinterAdmin', 'SuperAdmin']) or request.user.is_superuser):
-		print 'Filtrandoo'
-		q = q.filter(customer__user = request.user)
+		#print 'Filtrandoo'
+		q = q.filter(user = request.user)
 
-	centers = []
+	customers = []
 	for c in q:
-		centers.append({'id':c.id,'name':c.name})
-	print centers
-	return render(request, 'reportData.html', {'centers':centers})
+		customers.append({'id':c.id,'name':c.name})
+	#print centers
+	months = settings.MY_MONTHS
+	years = []
+	for y in range(datetime.datetime.now().year,datetime.datetime.now().year - settings.MAX_YEARS, -1):
+		years.append((y,'%s' % y))
+	return render(request, 'reportData.html', {'centers':customers, 'months':months, 'years':years})
+
+
+def completeZeros(strr,length):
+	while len(strr) < length:
+		strr = '0' + strr
+	return strr
+
 @login_required()
 def reporPrinterJson(request):
 	res = {}
-	q = PrinterReport.objects.all()
-	fromdate = request.GET.get('from')
-	todate = request.GET.get('to')
-	center = request.GET.get('center_id')
-	if todate and fromdate:
-		pat = r'([0-9]{4})\-([0-9]{2})\-([0-9]{2})'
-		if re.search(pat,todate) and re.search(pat,fromdate):
-			
-			q = q.filter(date__range=[fromdate,todate]).order_by('-date')
-	if center:
-		q = q.filter(printerOwner__center__id = int(center))
+	year = request.GET.get('year')
+	month = request.GET.get('month')
+	customer = request.GET.get('customer')
+
+	q = Printer.objects.all()
+	if customer:
+		q = q.filter(center__customer__id = int(customer))
+	
+	qr = PrinterReport.objects.all()
+	todate  = timezone.make_aware(datetime.datetime.now(), timezone.get_default_timezone()).strftime('%Y-%m-%d')
+	if year and month:
+		fromdate = '%s-%s-01' % (year,completeZeros(month,2))
+		todate = '%s-%s-01' % (year, completeZeros(str(int(month) + 1),2))
+		print 'range %s -- %s' % (fromdate, todate)
+		qr = qr.filter(date__range=[fromdate,todate]).order_by('-date')
+		print len(qr)
+		
+	
 	res['data'] =[ob.as_json() for ob in q]
+	pat = r'[0-9]+'
+	
+	for p in res['data']:
+		p['last_report'] = {}
+		for pr in qr:
+			if pr.is_valid:
+				#print pr.pages_printed
+				if p['serial_number'] == pr.serial_number and re.search(pat, str(pr.pages_printed)):
+					p['last_report'] = pr.as_json()
+					if timezone.make_aware( datetime.datetime.strptime(todate,'%Y-%m-%d') - datetime.timedelta(days = 7),timezone.get_default_timezone()) > pr.date:
+						p['warning'] = True
+					else:
+						p['warning'] = False
+
+					break
+		if not p['last_report']:
+			p['no-report'] = True
+
+
+
 	return JsonResponse(res)
 
 @login_required()
@@ -168,7 +256,7 @@ def reportByCenter(request, center_id):
 	q = Printer.objects.all()
 	
 	if not (request.user.groups.filter(name__in = ['PrinterAdmin', 'SuperAdmin']) or request.user.is_superuser):
-		print 'Filtrando CUSTOMER'
+		#print 'Filtrando CUSTOMER'
 		q = Printer.objects.filter(center__customer__user = request.user)
 	if center_id:
 		q = q.filter(center__id = center_id )
@@ -177,13 +265,26 @@ def reportByCenter(request, center_id):
 
 @login_required()
 def report(request, customer_id = None):
+	breadcrumbs = []
+	breadcrumbs.append({'url': '/customer/', 'title':'Clientes'})
 	if not customer_id:
-		return render(request,'report.html')
+		return render(request,'report.html', {'breadcrumbs': breadcrumbs})
 	else:
-		return render(request, 'reportCust.html', {'customer_id': customer_id})
+		c = Customer.objects.get(pk = customer_id)
+		breadcrumbs.append({'url':'/customer/%s' % customer_id, 'title': c.name})
+		return render(request, 'reportCust.html', {'customer_id': customer_id, 'breadcrumbs':breadcrumbs})
 
 @login_required()
 def center(request, center_id):
-	return render(request,'reportCent.html',{'center_id':center_id})
+	
+	breadcrumbs = []
+	breadcrumbs.append({'url': '/customer/', 'title':'Clientes'})
+	if center_id:
+		c = Center.objects.get(pk = center_id)
+		breadcrumbs.append({'url':'/customer/%s' % c.customer.id, 'title': c.customer.name})
+		breadcrumbs.append({'url':'/center/%s' % center_id, 'title': c.name})
+	else:
+		breadcrumbs.append({'url':'/center/', 'title': 'Todas las Impresoras'})
+	return render(request,'reportCent.html',{'center_id':center_id, 'breadcrumbs': breadcrumbs})
 
 

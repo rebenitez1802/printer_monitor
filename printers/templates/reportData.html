@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
-  <title>Center</title>
+  <title>Reportes</title>
 
   <!-- CSS  -->
   {% load static %}
@@ -26,30 +26,44 @@
       <div class="row">
         <form class="">{% csrf_token %}
           
-            <div class="input-field col s4">
-              <i class="material-icons prefix">today</i>
-              <input type="date" id="date_from" class="datepicker">
-            
-              <label class="active" for="date_from">From</label>
-            </div>
-            <div class="input-field col s4">
+            <div class="input-field col s3">
+             <select id="month_sel">
+                <option value="" disabled selected>Seleccione Mes</option>
+                
+                {% for c in months %}
+                  <option value="{{ c.0 }}">{{ c.1 }}</option>
+                {% endfor %}
+              </select>
+              <label for="center_sel">Mes</label>
+             </div>
+             <div class="input-field col s3">
+             <select id="year_sel">
+                <option value="" disabled selected>Seleccione Año</option>
+                
+                {% for c in years %}
+                  <option value="{{ c.0 }}">{{ c.1 }}</option>
+                {% endfor %}
+              </select>
+              <label for="center_sel">Año</label>
+             </div>
+            <!--<div class="input-field col s4">
               <i class="material-icons prefix">today</i>
               <input type="date" id="date_to" class="datepicker">
               <label class="active" for="date_to">To</label>
-            </div>
-            <div class="input-field col s2">
+            </div>-->
+            <div class="input-field col s3">
              <select id="center_sel">
-                <option value="" disabled selected>Choose Center</option>
-                <option value="">All</option>
+                <option value="" disabled selected>Seleccione un Cliente</option>
+                <option value="">Todos</option>
                 {% for c in centers %}
                   <option value="{{ c.id }}">{{ c.name }}</option>
                 {% endfor %}
               </select>
-              <label for="center_sel">Materialize Select</label>
+              <label for="center_sel">Clientes</label>
              </div>
 
             <div class="input-field col s2">
-              <a id="submit-btn" class="waves-effect waves-light btn col s12">Filter <i class="material-icons right">fast_forward</i></a>
+              <a id="submit-btn" class="waves-effect waves-light btn col s12">Filtrar <i class="material-icons right">fast_forward</i></a>
 
             </div>
              
@@ -58,11 +72,11 @@
       </div>
       <div class="row">
         <div class="input-field col s3 right">
-              <a id="pdf-btn" class="waves-effect waves-light btn col s12">Download PDF <i class="material-icons right">description</i></a>
+              <a id="pdf-btn" class="waves-effect waves-light btn col s12">Descargar PDF <i class="material-icons right">description</i></a>
 
         </div>
         <div class="input-field col s3 right">
-              <a id="xls-btn" class="waves-effect waves-light btn col s12">Download XLS <i class="material-icons right">description</i></a>
+              <a id="xls-btn" class="waves-effect waves-light btn col s12">Descargar XLS <i class="material-icons right">description</i></a>
 
         </div>
 
@@ -70,33 +84,20 @@
       <table id="example" class="display main_table" cellspacing="0" width="100%">
         <thead>
             <tr>
-                <th>Date Report</th>
-                <th>Serial Number</th>
+                <th>Fecha</th>
+                <th>N&uacute;mero de Serie</th>
                 
                 <!--<th>Model</th>-->
-                <th>Status</th>
-                <th>Ip</th>
-                <th>Pages</th>
-                <th>Toner Level</th>
-                <th>Host Name</th>
+                <th>Estatus</th>
+                <th>IP</th>
+                <th>P&aacute;ginas</th>
+                <th>Niv&eacute;l de Toner</th>
+                <th>Host</th>
                 <!--<th>Mac Address</th> -->
              
             </tr>
         </thead>
-        <tfoot>
-            <tr>
-                <th>Date Report</th>
-                <th>Serial Number</th>
-                
-                <!--<th>Model</th>-->
-                <th>Status</th>
-                <th>Ip</th>
-                <th>Pages</th>
-                <th>Toner Level</th>
-                <th>Host Name</th>
-                <!--<th>Mac Address</th> -->
-            </tr>
-        </tfoot>
+       
       </table>
 
     </div>
@@ -117,20 +118,20 @@
     function loadDT(){
       
       var params = '?';
-      if($('#date_from').val() !== '' && $('#date_to').val() !== '' ) {
+      if($('#year_sel').val() !== '' && $('#month_sel').val() !== '' ) {
         
-        if(new Date($('#date_to').val()) > new Date($('#date_from').val())){
-          params = params +'from='+$('#date_from').val()+'&to='+$('#date_to').val();
+        if(new Date(parseInt($('#year_sel').val()),parseInt($('#month_sel').val()) -1) < new Date()){
+          params = params +'month='+$('#month_sel').val()+'&year='+$('#year_sel').val();
              
         }else{
-           Materialize.toast('The date "from"  must be grather then "to"', 2500);
+           Materialize.toast('Rango de Fecha Inv&acute;lido', 2500);
         }
       }
       if($('#center_sel').val() !== null){
         if (params !== '?'){
           params = params+'&';
         }
-        params=params +'center_id='+$('#center_sel').val();
+        params=params +'customer='+$('#center_sel').val();
       }
 
 
@@ -138,24 +139,28 @@
         dataTable.ajax.url(url+params);
         dataTable.ajax.reload();
       }else{
-        Materialize.toast('You must select Filter', 2500);
+        Materialize.toast('Debes seleccionar un Cliente', 2500);
       }
       
       
     }
     $( document ).ready(function() {
+     
       $('select').material_select();
       dataTable = $('#example').DataTable( {
+        "language": {
+                "url": "/static/js/dataTables.spanish.lang"
+        },
         "ajax": url,
         "columns": [
-            { "data": "date" },
+            { "data": "last_report.date" },
             { "data": "serial_number" },
             
            // { "data": "model" },
-            { "data": 'status'},
+            { "data": 'last_report.status'},
             { "data": "ip_address" },
-            { "data": "pages_printed" },
-            { "data": "toner_level" },
+            { "data": "last_report.pages_printed" },
+            { "data": "last_report.toner_level" },
             { "data": "host_name" },
             //{ "data": "mac_address" },
             
@@ -168,18 +173,18 @@
        $('#pdf-btn').click(function(){
           var urlpdf = '/report/generatePdf'
           var params = '?format=pdf';
-          if($('#date_from').val() !== '' && $('#date_to').val() !== '' ) {
-            
-            if(new Date($('#date_to').val()) > new Date($('#date_from').val())){
-              params = params +'&from='+$('#date_from').val()+'&to='+$('#date_to').val();
+          if($('#year_sel').val() !== '' && $('#month_sel').val() !== '' ) {
+        
+            if(new Date(parseInt($('#year_sel').val()),parseInt($('#month_sel').val()) -1) < new Date()){
+              params = params +'&month='+$('#month_sel').val()+'&year='+$('#year_sel').val();
                  
             }else{
-               Materialize.toast('The date "from"  must be grather then "to"', 2500);
+               Materialize.toast('Rango de Fecha Inv&acute;lido', 2500);
             }
           }
           if($('#center_sel').val() !== null){
             
-            params=params +'&center_id='+$('#center_sel').val();
+            params=params +'&customer='+$('#center_sel').val();
           }
           window.open(urlpdf+params,'_blank')
 
@@ -188,18 +193,18 @@
        $('#xls-btn').click(function(){
           var urlpdf = '/report/generatePdf'
           var params = '?format=xls';
-          if($('#date_from').val() !== '' && $('#date_to').val() !== '' ) {
-            
-            if(new Date($('#date_to').val()) > new Date($('#date_from').val())){
-              params = params +'&from='+$('#date_from').val()+'&to='+$('#date_to').val();
+          if($('#year_sel').val() !== '' && $('#month_sel').val() !== '' ) {
+        
+            if(new Date(parseInt($('#year_sel').val()),parseInt($('#month_sel').val()) -1) < new Date()){
+              params = params +'&month='+$('#month_sel').val()+'&year='+$('#year_sel').val();
                  
             }else{
-               Materialize.toast('The date "from"  must be grather then "to"', 2500);
+               Materialize.toast('Rango de Fecha Inv&acute;lido', 2500);
             }
           }
           if($('#center_sel').val() !== null){
             
-            params=params +'&center_id='+$('#center_sel').val();
+            params=params +'&customer='+$('#center_sel').val();
           }
           window.open(urlpdf+params,'_blank')
 
