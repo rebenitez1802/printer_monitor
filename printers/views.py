@@ -139,13 +139,13 @@ def generatePrinterReportPdf(request):
 			data.append(row)
 
 		print len(data)
-		file ='printers/static/download/'+ generatePrinterReport(data,headers,addStyles)
+		file = settings.PROJ_PATH + 'printers/static/download/'+ generatePrinterReport(data,headers,addStyles)
 		
 	if forma == 'xls':
 		for p in res['data']:
 			row = [p['ip_address'], p['last_report']['mac_address'] if p['last_report'] else '' , p['model'], p['serial_number'], p['host_name'], p['last_report']['toner_level'] if p['last_report'] else '', p['last_report']['pages_printed'] if p['last_report'] else '', p['last_report']['status'] if p['last_report'] else '', p['last_report']['date'] if p['last_report'] else '']
 			data.append(row)
-		file = 'printers/static/download/'+ generatePrinterReportXls(data,headers,cols,xlsAddStyles)
+		file =  settings.PROJ_PATH + 'printers/static/download/'+ generatePrinterReportXls(data,headers,cols,xlsAddStyles)
 
 	f = open(file, "r")
 	response = HttpResponse(FileWrapper(f), content_type='application/%s' % forma)

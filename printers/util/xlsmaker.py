@@ -5,7 +5,7 @@ from django.conf import settings
 def generatePrinterReportXls(data,headers,cols, backgroundStyles=None):
 	filename = 'file.xlsx'
   	path = settings.PROJ_PATH + "/printers/static/download/" + filename
-  	print 'generating %s' % path
+  	#print 'generating %s' % path
 	wb = Workbook()
 	ws = wb.active
 	ws.title = (' - '.join(headers))[:30]
@@ -19,12 +19,12 @@ def generatePrinterReportXls(data,headers,cols, backgroundStyles=None):
 			for c in ws.rows[s[0]]:
 				c.fill =PatternFill("solid", fgColor=s[1])
 				#print c
-	print 'saving to disk file %s' % path
+	#print 'saving to disk file %s' % path
 	try:
 		wb.save(filename= path)
 	except Exception as e:
 		print(type(inst))    # the exception instance
 		print(inst.args)     # arguments stored in .args
 		print(inst)
-	print 'saved %s' % path
+	#print 'saved %s' % path
 	return filename

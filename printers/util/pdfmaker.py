@@ -6,7 +6,7 @@ from django.conf import settings
 def generatePrinterReport(data,headers, aditionalStyles = None):
   filename = 'pdf.pdf'
   path = settings.PROJ_PATH + "/printers/static/download/" + filename
-  print 'Generating File %s' % path
+  #print 'Generating File %s' % path
   doc = SimpleDocTemplate(path, pagesize=landscape(letter))
   # container for the 'Flowable' objects
   elements = []
@@ -35,17 +35,15 @@ def generatePrinterReport(data,headers, aditionalStyles = None):
   elements.append(Spacer(0.5*inch,0.5*inch))
   elements.append(t)
   # write the document to disk
-  print 'Building File %s' % path
+  #print 'Building File %s' % path
   try:
-    doc2 = SimpleDocTemplate(filename, pagesize=landscape(letter))
-    doc2.build(elements)
     doc.build(elements)
   except Exception as e:
     print(type(inst))    # the exception instance
     print(inst.args)     # arguments stored in .args
     print(inst)
 
-  print 'Returning %s' % filename
+  #print 'Returning %s' % filename
   return filename
 
 
