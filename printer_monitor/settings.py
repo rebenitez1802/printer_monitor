@@ -41,7 +41,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 PROJ_PATH = '/opt/apps/printer-monitor_env/printer_monitor'
-XML_PATH =PROJ_PATH +'/xml'
+XML_PATH = PROJ_PATH +'/xml'
 
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 465 #587

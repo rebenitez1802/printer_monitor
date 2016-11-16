@@ -4,7 +4,7 @@ from django.conf import settings
 
 def generatePrinterReportXls(data,headers,cols, backgroundStyles=None):
 	filename = 'file.xlsx'
-  	path = settings.PROJ_PATH + "printers/static/download/" + filename
+  	path = settings.PROJ_PATH + "/printers/static/download/" + filename
 	wb = Workbook()
 	ws = wb.active
 	ws.title = (' - '.join(headers))[:30]

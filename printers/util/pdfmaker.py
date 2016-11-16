@@ -5,7 +5,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from django.conf import settings
 def generatePrinterReport(data,headers, aditionalStyles = None):
   filename = 'pdf.pdf'
-  path = settings.PROJ_PATH + "printers/static/download/" + filename
+  path = settings.PROJ_PATH + "/printers/static/download/" + filename
 
   doc = SimpleDocTemplate(path, pagesize=landscape(letter))
   # container for the 'Flowable' objects
@@ -13,7 +13,7 @@ def generatePrinterReport(data,headers, aditionalStyles = None):
    
   styleSheet = getSampleStyleSheet()
   
-  I = Image(settings.PROJ_PATH + 'printers/static/images/ixon-logo.png')
+  I = Image(settings.PROJ_PATH + '/printers/static/images/ixon-logo.png')
   #I.drawHeight = 1.25*inch*I.drawHeight / I.drawWidth
   #I.drawWidth = 1.25*inch
   header = [[I],headers]
