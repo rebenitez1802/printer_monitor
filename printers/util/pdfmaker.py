@@ -6,7 +6,7 @@ from django.conf import settings
 def generatePrinterReport(data,headers, aditionalStyles = None):
   filename = 'pdf.pdf'
   path = settings.PROJ_PATH + "/printers/static/download/" + filename
-
+  print 'Generating File %s' % path
   doc = SimpleDocTemplate(path, pagesize=landscape(letter))
   # container for the 'Flowable' objects
   elements = []
@@ -35,7 +35,9 @@ def generatePrinterReport(data,headers, aditionalStyles = None):
   elements.append(Spacer(0.5*inch,0.5*inch))
   elements.append(t)
   # write the document to disk
+  print 'Building File %s' % path
   doc.build(elements)
+  print 'Returning %s' % filename
   return filename
 
 

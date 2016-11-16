@@ -27,7 +27,7 @@ def login_view(request):
 	if not request.user.is_authenticated():
 		
 		if request.method == 'POST':
-			_next = '/customer'
+			_next = '/customer/'
 			print request.path
 			if request.GET.get('next'):
 				_next = request.GET.get('next')
