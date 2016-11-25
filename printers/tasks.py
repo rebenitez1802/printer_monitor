@@ -221,65 +221,67 @@ def procesXmlFiles(createprinter = False):
 	django.db.connection.close()
 	xmls = MailsToProcess.objects.filter(done = False)
 	for xml in xmls:
-		
-		tree = ET.parse(xml.xml_path)
-		root = tree.getroot()
-		for m in root: #printers
-			obj = PrinterReport()
-			for attr in m:
-				if attr[0].text == 'DeviceIpAddress':
-					if attr[1].text:
-						print attr[1].text
-						obj.ip_address = attr[1].text
-				elif attr[0].text == 'DeviceMacAddress':
-					if attr[1].text:
-						print attr[1].text
-						obj.mac_address = attr[1].text
-				elif attr[0].text == 'DeviceHostName':
-					if attr[1].text:
-						print attr[1].text
-						obj.host_name = attr[1].text
-				elif attr[0].text == 'DeviceModelName':
-					if attr[1].text:
-						print attr[1].text
-						obj.model = attr[1].text
-				elif attr[0].text == 'DeviceSerialNumber':
-					if attr[1].text:
-						print attr[1].text
-						obj.serial_number = attr[1].text
+		try :
+			tree = ET.parse(xml.xml_path)
+			root = tree.getroot()
+			for m in root: #printers
+				obj = PrinterReport()
+				for attr in m:
+					if attr[0].text == 'DeviceIpAddress':
+						if attr[1].text:
+							print attr[1].text
+							obj.ip_address = attr[1].text
+					elif attr[0].text == 'DeviceMacAddress':
+						if attr[1].text:
+							print attr[1].text
+							obj.mac_address = attr[1].text
+					elif attr[0].text == 'DeviceHostName':
+						if attr[1].text:
+							print attr[1].text
+							obj.host_name = attr[1].text
+					elif attr[0].text == 'DeviceModelName':
+						if attr[1].text:
+							print attr[1].text
+							obj.model = attr[1].text
+					elif attr[0].text == 'DeviceSerialNumber':
+						if attr[1].text:
+							print attr[1].text
+							obj.serial_number = attr[1].text
 
-				elif attr[0].text == 'deviceAggregateTonerLevels':
-					if attr[1].text:
-						print attr[1].text
-						obj.toner_level = attr[1].text
-				elif attr[0].text == 'deviceAggregateStatus':
-					if attr[1].text:
-						print attr[1].text
-						obj.status = attr[1].text
-				elif attr[0].text == 'DevicePagesPrinted':
-					if attr[1].text:
-						print attr[1].text
-						obj.pages_printed = attr[1].text
-						try:
-							int(obj.pages_printed)
-							obj.is_valid = True
-						except ValueError:
-							obj.is_valid = False
-			obj.date = datetime.now()
-			try:
-				p = Printer.objects.get(serial_number = obj.serial_number)
-			except ObjectDoesNotExist:
-				p = None
-			except Exception:
-				p = None
-			
-			if p:
-				obj.printerOwner_id = p.id
-				obj.save()
-				xml.done = True
-				xml.save()
-				p.last_report_id = obj.id 
-				p.save()
+					elif attr[0].text == 'deviceAggregateTonerLevels':
+						if attr[1].text:
+							print attr[1].text
+							obj.toner_level = attr[1].text
+					elif attr[0].text == 'deviceAggregateStatus':
+						if attr[1].text:
+							print attr[1].text
+							obj.status = attr[1].text
+					elif attr[0].text == 'DevicePagesPrinted':
+						if attr[1].text:
+							print attr[1].text
+							obj.pages_printed = attr[1].text
+							try:
+								int(obj.pages_printed)
+								obj.is_valid = True
+							except ValueError:
+								obj.is_valid = False
+				obj.date = datetime.now()
+				try:
+					p = Printer.objects.get(serial_number = obj.serial_number)
+				except ObjectDoesNotExist:
+					p = None
+				except Exception:
+					p = None
+				
+				if p:
+					obj.printerOwner_id = p.id
+					obj.save()
+					xml.done = True
+					xml.save()
+					p.last_report_id = obj.id 
+					p.save()
+		except Exception:
+			print 'XML Invalid: %s' % xml.xml_path
 			'''elif createprinter:
 
 				idPrinter = createPrinters(obj)

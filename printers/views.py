@@ -244,10 +244,39 @@ def reportByCostumer(request, costumer_id):
 		
 		q = Center.objects.filter(printer__center__customer__user = request.user)
 
-	q = q.filter(printer__center__customer__id = costumer_id).annotate(total_pages= Sum('printer__last_report__pages_printed')).annotate(total_printers= Count('printer', distinct=True))
+	q = q.filter(customer__id = costumer_id).annotate(total_pages= Sum('printer__last_report__pages_printed')).annotate(total_printers= Count('printer', distinct=True))
 	q = q.annotate(total_disconect = Sum(Case(When(printer__last_report__status__in = ['Error','Desconectado'], then = 1),When(printer__last_report__status__isnull = True, then = 1), default=0, output_field=IntegerField())))
 	q = q.annotate(total_low_toner = Sum(Case(When(printer__last_report__toner_level__regex = r'(K\(([0-9]|10|\?)\))', then = 1),When(printer__last_report__toner_level__isnull = True, then = 1), default=0, output_field=IntegerField())))
+	
 	res['data'] =[ob.as_json() for ob in q]
+
+	'''for cen in res['data']:
+		pl = Printer.objects.filter(center__id = cen['center_id'])
+		cen['total_printers'] = len(pl)
+		pagesp = 0
+		lowt = 0
+		discon = 0
+		for p in pl:
+			if p.last_report:
+				if p.last_report.pages_printed:
+					pagesp = pagesp + p.last_report.pages_printed
+				if not p.last_report.status or p.last_report.status in ['Error','Desconectado']:
+					discon = discon + 1
+				if p.last_report.toner_level:
+					regx = r'(K\(([0-9]|10|\?)\))'
+					if re.match(regx,p.last_report.toner_level) or p.last_report.toner_level.strip() == '':
+						lowt = lowt + 1
+				else:
+					print 'notiene toner'
+					lowt = lowt + 1
+			else:
+				discon = discon + 1
+				lowt = lowt + 1
+		cen['total_pages'] = pagesp
+		cen['total_disconect'] = discon
+		cen['total_low_toner'] = lowt 
+
+	'''
 	return JsonResponse(res)
 
 @login_required()

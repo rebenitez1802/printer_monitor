@@ -43,11 +43,12 @@ ALLOWED_HOSTS = ['*']
 PROJ_PATH = '/opt/apps/printer-monitor_env/printer_monitor'
 XML_PATH = PROJ_PATH +'/xml'
 
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 465 #587
-EMAIL_HOST_USER = 'rebenitez1802@gmail.com'
-EMAIL_HOST_PASSWORD = '18466309re##$'
-EMAIL_USE_SSL = True
+
+EMAIL_HOST = 'mail.ixon.cl'
+EMAIL_PORT = 587 #587
+EMAIL_HOST_USER = 'alertas@ixon.cl'
+EMAIL_HOST_PASSWORD = 'ixon.2016'
+EMAIL_USE_SSL = False
 
 # Application definition
 
