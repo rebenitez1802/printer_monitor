@@ -218,11 +218,12 @@ def procesXmlFiles(createprinter = False):
 	status = models.CharField(max_length=200)
 	date = models.DateTimeField()
 	'''
+	parser = ET.XMLParser(encoding="ISO-8859-1")
 	django.db.connection.close()
 	xmls = MailsToProcess.objects.filter(done = False)
 	for xml in xmls:
 		try :
-			tree = ET.parse(xml.xml_path)
+			tree = ET.parse(xml.xml_path, parser=parser)
 			root = tree.getroot()
 			for m in root: #printers
 				obj = PrinterReport()
