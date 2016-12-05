@@ -176,7 +176,7 @@ def generatePrinterReportPdf(request):
 
 	for i in range(0,_hmono):
 		if i == _hmono-1 and len(rrmono)%2 != 0:
-			rrdatamono.append(rrmono[i+_hmono]+['','','',''])
+			rrdatamono.append(rrmono[i+_hmono-1]+['','','',''])
 		else:
 			rrdatamono.append(rrmono[i]+['                   ']+rrmono[i+_hmono]+[''])
 	rrdatamono.append(['', '','','','',''])
