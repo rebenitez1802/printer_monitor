@@ -54,7 +54,6 @@ EMAIL_USE_SSL = False
 
 INSTALLED_APPS = [
     'rest_framework',
-    'report_builder',
     'djcelery',
     'printers',
     'django.contrib.admin',

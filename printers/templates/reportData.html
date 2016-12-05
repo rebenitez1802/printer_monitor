@@ -62,15 +62,23 @@
               <label for="center_sel">Clientes</label>
              </div>
 
-            <div class="input-field col s2">
-              <a id="submit-btn" class="waves-effect waves-light btn col s12">Filtrar <i class="material-icons right">fast_forward</i></a>
+             <div class="input-field col s1">
 
+               <p>
+                  <input type="checkbox" class="filled-in" id="alerts" checked="checked" />
+                  <label for="alerts">Alertas</label>
+              </p>
             </div>
+           
              
-        </form>
+       
 
       </div>
       <div class="row">
+         <div class="input-field col s2">
+              <a id="submit-btn" class="waves-effect waves-light btn col s12">Filtrar <i class="material-icons right">fast_forward</i></a>
+
+          </div>
         <div class="input-field col s3 right">
               <a id="pdf-btn" class="waves-effect waves-light btn col s12">Descargar PDF <i class="material-icons right">description</i></a>
 
@@ -81,6 +89,8 @@
         </div>
 
       </div>
+
+    </form>
       <table id="example" class="display main_table" cellspacing="0" width="100%">
         <thead>
             <tr>
@@ -134,6 +144,12 @@
         params=params +'customer='+$('#center_sel').val();
       }
 
+      if($('#alerts').is(':checked')){
+        if (params !== '?'){
+          params = params+'&';
+        }
+        params=params +'alerts=true';
+      }
 
       if(params !== '?'){
         dataTable.ajax.url(url+params);
@@ -186,6 +202,10 @@
             
             params=params +'&customer='+$('#center_sel').val();
           }
+          if($('#alerts').is(':checked')){
+            
+            params=params +'&alerts=true';
+          }
           window.open(urlpdf+params,'_blank')
 
           
@@ -205,6 +225,10 @@
           if($('#center_sel').val() !== null){
             
             params=params +'&customer='+$('#center_sel').val();
+          }
+          if($('#alerts').is(':checked')){
+            
+            params=params +'&alerts=true';
           }
           window.open(urlpdf+params,'_blank')
 

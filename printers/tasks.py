@@ -267,9 +267,13 @@ def procesXmlFiles(createprinter = False):
 								obj.is_valid = False
 				obj.date = datetime.now()
 				try:
-					p = Printer.objects.get(serial_number = obj.serial_number)
+					if obj.serial_number and obj.serial_number.strip() != '':
+						p = Printer.objects.get(serial_number = obj.serial_number)
+					else:
+						p = Printer.objects.get(mac_address = obj.mac_address)
 				except ObjectDoesNotExist:
 					p = None
+
 				except Exception:
 					p = None
 				

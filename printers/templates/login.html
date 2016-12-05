@@ -56,6 +56,12 @@
 <script src="{% static 'js/init.js'%}"></script>
 <script src="{% static 'js/common.js'%}"></script>
 <script type="text/javascript">
+  $('.input-field').keypress(function(e) {
+        if(e.which == 13) {
+            
+            $('#submit-btn').focus().click();
+        }
+    });
   $('#submit-btn').click(function(){
     next_url = '';
     if (qs('next') !== null){

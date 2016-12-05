@@ -21,7 +21,7 @@ from django.views.generic.base import RedirectView
 urlpatterns = [
     url(r'^$', RedirectView.as_view(url='customer/')),
     url(r'^admin/', admin.site.urls),
-    url(r'^report_builder/', include('report_builder.urls')),
+  
     
     url(r'^customer/([0-9]+)?$', 'printers.views.report'),
     url(r'^center/([0-9]+)?$', 'printers.views.center'),

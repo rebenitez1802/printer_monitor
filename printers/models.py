@@ -8,13 +8,14 @@ from django.contrib.auth.models import User
 phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="El formato para el campo es el siguiente: '+999999999'.")
 
 ALERT_TYPE = [('[alert-toner]', 'Alerta de Toner Bajo'), ('[alert-no_report]','Alerta de No reporte recibido')]
+PRINTER_TYPE = [('mono','Mono'),('color', 'Color') ]
 
 class Customer(models.Model):
 	name = models.CharField(max_length=200)
-	rut = models.CharField(max_length=200)
-	address = models.TextField(max_length=500)
-	phone = models.CharField(max_length=200, validators=[phone_regex])
-	email = models.EmailField(max_length=200, validators = [validate_email])
+	rut = models.CharField(max_length=200, null=True, blank=True)
+	address = models.TextField(max_length=500, null=True, blank=True)
+	phone = models.CharField(max_length=200, validators=[phone_regex], null=True, blank=True)
+	email = models.EmailField(max_length=200, validators = [validate_email], null=True, blank=True)
 	user = models.ManyToManyField(User, blank = True, null =True)
 
 	def as_json(self):
@@ -44,15 +45,15 @@ class Customer(models.Model):
 class Center(models.Model):
 	name = models.CharField(max_length=200)
 	customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-	address = models.TextField(max_length=500)
-	phone = models.CharField(max_length=200, validators =[phone_regex])
-	city = models.CharField(max_length=200)
-	district = models.CharField(max_length=200)
-	state = models.CharField(max_length=200)
-	email = models.EmailField(max_length=200, validators = [validate_email])
-	manager_name  = models.CharField(max_length=200)
-	manager_phone = models.CharField(max_length=200)
-
+	address = models.TextField(max_length=500, null=True, blank=True)
+	phone = models.CharField(max_length=200, validators =[phone_regex], null=True, blank=True)
+	city = models.CharField(max_length=200, null=True, blank=True)
+	district = models.CharField(max_length=200, null=True, blank=True)
+	state = models.CharField(max_length=200, null=True, blank=True)
+	email = models.EmailField(max_length=200, validators = [validate_email], null=True, blank=True)
+	manager_name  = models.CharField(max_length=200, null=True, blank=True)
+	manager_phone = models.CharField(max_length=200, null=True, blank=True)
+	order = models.IntegerField(null=True,blank=True)
 	def as_json(self):
 
 
@@ -86,14 +87,26 @@ class Center(models.Model):
 class Printer(models.Model):
 	center = models.ForeignKey(Center, on_delete=models.CASCADE)
 	last_report = models.ForeignKey('PrinterReport', blank = True, null = True)
-	brand = models.CharField(max_length=200)
-	model = models.CharField(max_length=200)
-	serial_number = models.CharField(max_length=200)
-	host_name = models.CharField(max_length=200)
-	ip_address = models.GenericIPAddressField(validators = [validate_ipv46_address])
+	brand = models.CharField(max_length=200, blank=True,null=True)
+	mac_address = models.CharField(max_length = 200, blank=True, null=True)
+	model = models.CharField(max_length=200, blank=True, null=True)
+	serial_number = models.CharField(max_length=200, blank =True,null=True)
+	host_name = models.CharField(max_length=200, blank=True, null=True)
+	ip_address = models.GenericIPAddressField(validators = [validate_ipv46_address], blank=True, null=True)
+	printer_type =  models.CharField(max_length=200, choices=PRINTER_TYPE, default = PRINTER_TYPE[0][0])
+	location = models.CharField(max_length=200, blank=True, null=True)
+
+	def getPrinterTypePretty(self):
+		ret = 'Desconocido'
+		for a,y in PRINTER_TYPE:
+			if a == self.alerttype:
+				ret = y
+				break
+		return ret
 
 	def as_json(self):
 		dic = dict(
+			id=self.id,
 			center_name = self.center.name,
 			center_id = self.center.id,
 			last_report = self.last_report.as_json() if self.last_report else {},
@@ -101,7 +114,9 @@ class Printer(models.Model):
 			model = self.model,
 			serial_number = self.serial_number,
 			host_name = self.host_name,
-			ip_address = self.ip_address
+			ip_address = self.ip_address,
+			printer_type = self.printer_type,
+			location = self.location
 			
 			)
 		return dic
