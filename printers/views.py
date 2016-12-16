@@ -356,7 +356,7 @@ def reporPrinterJson(request):
 		for pr in qr:
 			if pr.is_valid:
 				#print pr.pages_printed
-				if p['serial_number'] == pr.serial_number and re.search(pat, str(pr.pages_printed)):
+				if p['serial_number'] and pr.serial_number and p['serial_number'].strip() == pr.serial_number.strip() and re.search(pat, str(pr.pages_printed)):
 					p['last_report'] = pr.as_json()
 					if timezone.make_aware( datetime.datetime.strptime(todate,'%Y-%m-%d') - datetime.timedelta(days = 7),timezone.get_default_timezone()) > pr.date:
 						p['warning'] = True
@@ -380,8 +380,8 @@ def reportJson(request):
 		
 		q = Customer.objects.filter(user = request.user)
 	q = q.annotate(total_pages= Sum('center__printer__last_report__pages_printed')).annotate(total_printers= Count('center__printer', distinct=True)).annotate(total_centers = Count('center',distinct = True))
-	q = q.annotate(total_disconect = Sum(Case(When(center__printer__last_report__status__in = ['Error','Desconectado'], then = 1),When(center__printer__last_report__status__isnull = True, then = 1), default=0, output_field=IntegerField())))
-	q = q.annotate(total_low_toner = Sum(Case(When(center__printer__last_report__toner_level__regex = r'(K\(([0-9]|10|\?)\))', then = 1),When(center__printer__last_report__toner_level__isnull = True, then = 1), default=0, output_field=IntegerField())))
+	q = q.annotate(total_disconect = Sum(Case(When(center__printer__last_report__status__in = ['Error','Desconectado'], then = 1),When(center__printer__last_report__status__isnull = True, then = 0), default=0, output_field=IntegerField())))
+	q = q.annotate(total_low_toner = Sum(Case(When(center__printer__last_report__toner_level__regex = r'(K\(([0-9]|10|\?)\))', then = 1),When(center__printer__last_report__toner_level__isnull = True, then = 0), default=0, output_field=IntegerField())))
 	
 	res['data'] =[ob.as_json() for ob in q]
 	return JsonResponse(res)
@@ -396,8 +396,8 @@ def reportByCostumer(request, costumer_id):
 		q = Center.objects.filter(printer__center__customer__user = request.user)
 
 	q = q.filter(customer__id = costumer_id).annotate(total_pages= Sum('printer__last_report__pages_printed')).annotate(total_printers= Count('printer', distinct=True))
-	q = q.annotate(total_disconect = Sum(Case(When(printer__last_report__status__in = ['Error','Desconectado'], then = 1),When(printer__last_report__status__isnull = True, then = 1), default=0, output_field=IntegerField())))
-	q = q.annotate(total_low_toner = Sum(Case(When(printer__last_report__toner_level__regex = r'(K\(([0-9]|10|\?)\))', then = 1),When(printer__last_report__toner_level__isnull = True, then = 1), default=0, output_field=IntegerField())))
+	q = q.annotate(total_disconect = Sum(Case(When(printer__last_report__status__in = ['Error','Desconectado'], then = 1),When(printer__last_report__status__isnull = True, then = 0), default=0, output_field=IntegerField())))
+	q = q.annotate(total_low_toner = Sum(Case(When(printer__last_report__toner_level__regex = r'(K\(([0-9]|10|\?)\))', then = 1),When(printer__last_report__toner_level__isnull = True, then = 0), default=0, output_field=IntegerField())))
 	
 	res['data'] =[ob.as_json() for ob in q]
 
