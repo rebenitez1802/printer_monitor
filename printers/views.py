@@ -83,7 +83,7 @@ def generatePrinterReportPdf(request):
 	alerts = request.GET.get('alerts')
 	headers = []
 	
-	qr = PrinterReport.objects.all()
+	qr = PrinterReport.objects.all().order_by('-date')
 	tope = timezone.make_aware(datetime.datetime.now() -datetime.timedelta(days = 7), timezone.get_default_timezone())
 	
 	if year and month:
@@ -332,7 +332,7 @@ def reporPrinterJson(request):
 	if customer:
 		q = q.filter(center__customer__id = int(customer))
 	
-	qr = PrinterReport.objects.all()
+	qr = PrinterReport.objects.all().order_by('-date')
 	todate  = timezone.make_aware(datetime.datetime.now(), timezone.get_default_timezone()).strftime('%Y-%m-%d')
 	if year and month:
 		fromdate = '%s-%s-01' % (year,completeZeros(month,2))
