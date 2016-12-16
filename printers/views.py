@@ -340,7 +340,7 @@ def reporPrinterJson(request):
 		if int(month) + 1 < 13:
 			todate = '%s-%s-01' % (year, completeZeros(str(int(month) + 1),2))
 		else:
-			todate = '%s-%s-01' % (year+1, completeZeros(str(int(month) + 1-12),2))
+			todate = '%s-%s-01' % (str(int(year)+1), completeZeros(str(int(month) -11),2))
 
 		
 		
