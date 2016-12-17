@@ -46,6 +46,8 @@ class PrinterAdmin(admin.ModelAdmin):
 	model = Printer
 	list_display = (['serial_number', 'brand', 'model', 'get_center',  'get_customer'])
 	exclude = ('last_report',)
+	list_filter = ('center__customer__name','center__name')
+
 	def get_center(self,obj):
 		return obj.center.name
 	get_center.admin_order_field = 'center'

@@ -180,7 +180,7 @@ def generatePrinterReportPdf(request):
 		else:
 			rrdatamono.append(rrmono[i]+['                   ']+rrmono[i+_hmono]+[''])
 	rrdatamono.append(['', '','','','',''])
-	rrdatamono.append(['Total Periodo', totalpmono,'','','','EQUIPOS MONOCOLOR'])
+	rrdatamono.append(['Total Periodo', totalpmono,'','','','EQUIPOS MONOCROMO'])
 
 	
 	rrdatacolor = []
@@ -188,7 +188,7 @@ def generatePrinterReportPdf(request):
 
 	for i in range(0,_hcolor):
 		if i == _hcolor-1 and len(rrcolor)%2 != 0:
-			rrdatacolor.append(rrcolor[i+_hcolor]+['','','',''])
+			rrdatacolor.append(rrcolor[i+_hcolor-1]+['','','',''])
 		else:
 			rrdatacolor.append(rrcolor[i]+['                   ']+rrcolor[i+_hcolor]+[''])
 	rrdatacolor.append(['', '','','','',''])

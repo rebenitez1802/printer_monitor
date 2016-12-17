@@ -76,7 +76,7 @@
       </div>
       <div class="row">
          <div class="input-field col s2">
-              <a id="submit-btn" class="waves-effect waves-light btn col s12">Filtrar <i class="material-icons right">fast_forward</i></a>
+            <!--  <a id="submit-btn" class="waves-effect waves-light btn col s12">Filtrar <i class="material-icons right">fast_forward</i></a>-->
 
           </div>
         <div class="input-field col s3 right">
@@ -91,25 +91,25 @@
       </div>
 
     </form>
-      <table id="example" class="display main_table" cellspacing="0" width="100%">
+     <!-- <table id="example" class="display main_table" cellspacing="0" width="100%">
         <thead>
             <tr>
                 <th>Fecha</th>
                 <th>N&uacute;mero de Serie</th>
                 
-                <!--<th>Model</th>-->
+                
                 <th>Estatus</th>
                 <th>IP</th>
                 <th>P&aacute;ginas</th>
                 <th>Niv&eacute;l de Toner</th>
                 <th>Host</th>
-                <!--<th>Mac Address</th> -->
+                
              
             </tr>
         </thead>
        
       </table>
-
+      -->
     </div>
     <br><br>
 </div>
@@ -124,7 +124,7 @@
     
     var url =  '/api/report/printerReport';
         
-    var dataTable = null;
+    /*var dataTable = null;
     function loadDT(){
       
       var params = '?';
@@ -159,11 +159,11 @@
       }
       
       
-    }
+    }*/
     $( document ).ready(function() {
      
       $('select').material_select();
-      dataTable = $('#example').DataTable( {
+      /*dataTable = $('#example').DataTable( {
         "language": {
                 "url": "/static/js/dataTables.spanish.lang"
         },
@@ -181,11 +181,12 @@
             //{ "data": "mac_address" },
             
         ]
-        });
-       $('#submit-btn').click(function(){
+        });*/
+       /*$('#submit-btn').click(function(){
           loadDT();
 
-       });
+       });*/
+      
        $('#pdf-btn').click(function(){
           var urlpdf = '/report/generatePdf'
           var params = '?format=pdf';
@@ -202,11 +203,18 @@
             
             params=params +'&customer='+$('#center_sel').val();
           }
-          if($('#alerts').is(':checked')){
+          if(params !== '?format=pdf'){
+            window.open(urlpdf+params,'_blank')
+          }else{
+             if($('#alerts').is(':checked')){
             
-            params=params +'&alerts=true';
+                params=params +'&alerts=true';
+              }
+            Materialize.toast('Debes seleccionar un Cliente', 2500);
           }
-          window.open(urlpdf+params,'_blank')
+         
+         
+          
 
           
        });
@@ -226,11 +234,17 @@
             
             params=params +'&customer='+$('#center_sel').val();
           }
-          if($('#alerts').is(':checked')){
+         
+          if(params !== '?format=xls'){
+            window.open(urlpdf+params,'_blank')
+          }else{
+             if($('#alerts').is(':checked')){
             
-            params=params +'&alerts=true';
+               params=params +'&alerts=true';
+              }
+            Materialize.toast('Debes seleccionar un Cliente', 2500);
           }
-          window.open(urlpdf+params,'_blank')
+          
 
           
        });
