@@ -34,14 +34,8 @@ def saveAlert(alertType, emailmsg):
 			elif 'Mac ' in line:
 				att = AlertAttributes(alert_id= a.id, key = 'mac', value= line.split('Mac ')[1])
 				att.save()
-			elif urllib.quote('Dirección__SPACE__IP__COLON____SPACE__').replace('__COLON__',':').replace('__SPACE__',' ').replace('%','=') in line:
-				att = AlertAttributes(alert_id= a.id, key = 'ip_address', value= line.split(': ')[1])
-				att.save()
-			elif urllib.quote('Número__SPACE__de__SPACE__Serie__COLON____SPACE__').replace('__SPACE__', ' ').replace('__COLON__',':').replace('%','=') in line:
-				att = AlertAttributes(alert_id= a.id, key = 'serial_number', value= line.split(': ')[1])
-				att.save()
 				try:
-					p = Printer.objects.get(serial_number = att.value)
+					p = Printer.objects.get(mac_address = att.value)
 				except ObjectDoesNotExist:
 					p = None
 				except Exception:
@@ -49,6 +43,13 @@ def saveAlert(alertType, emailmsg):
 				if p:
 					a.printerOwner_id = p.id
 					a.save()
+			elif urllib.quote('Dirección__SPACE__IP__COLON____SPACE__').replace('__COLON__',':').replace('__SPACE__',' ').replace('%','=') in line:
+				att = AlertAttributes(alert_id= a.id, key = 'ip_address', value= line.split(': ')[1])
+				att.save()
+			elif urllib.quote('Número__SPACE__de__SPACE__Serie__COLON____SPACE__').replace('__SPACE__', ' ').replace('__COLON__',':').replace('%','=') in line:
+				att = AlertAttributes(alert_id= a.id, key = 'serial_number', value= line.split(': ')[1])
+				att.save()
+				
 
 			elif 'Contador Total: ' in line:
 				att = AlertAttributes(alert_id= a.id, key = 'total_count', value= line.split('Contador Total: ')[1])
@@ -97,7 +98,6 @@ def getAllAlertsMailsMsg(alerts):
 			if al.printerOwner:
 				tr = tr + '<td>%s</td>' % al.printerOwner.center.customer.name
 				tr = tr + '<td>%s</td>' % al.printerOwner.center.name
-				tr = tr + '<td>%s</td>' % al.printerOwner.serial_number
 			else:
 				tr = tr + '<td></td><td></td><td></td>'
 
@@ -268,10 +268,19 @@ def procesXmlFiles(createprinter = False):
 								obj.is_valid = False
 				obj.date = datetime.now()
 				try:
-					if obj.serial_number and obj.serial_number.strip() != '':
-						p = Printer.objects.get(serial_number = obj.serial_number)
+					if obj.mac_address and obj.mac_address.strip()!= '':
+						if Printer.objects.filter(mac_address = obj.mac_address).count() == 1:
+							p = Printer.objects.get(mac_address = obj.mac_address)
+						elif: Printer.objects.filter(mac_address = obj.mac_address).count() > 1 and obj.serial_number and obj.serial_number.strip() != '':
+							p = Printer.objects.get(mac_address = obj.mac_address, serial_number = obj.serial_number)
+						else:
+							p = None
 					else:
-						p = Printer.objects.get(mac_address = obj.mac_address)
+						if obj.serial_number and obj.serial_number.strip() != '':
+							if Printer.objects.filter(serial_number = obj.serial_number).count() == 1:
+								p = Printer.objects.get(serial_number = obj.serial_number)
+							
+					
 				except ObjectDoesNotExist:
 					p = None
 

@@ -44,7 +44,7 @@ class PrinterAdminForm(forms.ModelForm):
 class PrinterAdmin(admin.ModelAdmin):
 	form = PrinterAdminForm
 	model = Printer
-	list_display = (['serial_number', 'brand', 'model', 'get_center',  'get_customer'])
+	list_display = (['mac_address','serial_number', 'brand', 'model', 'get_center',  'get_customer'])
 	exclude = ('last_report',)
 	list_filter = ('center__customer__name','center__name')
 

@@ -356,7 +356,7 @@ def reporPrinterJson(request):
 		for pr in qr:
 			if pr.is_valid:
 				#print pr.pages_printed
-				if p['serial_number'] and pr.serial_number and p['serial_number'].strip() == pr.serial_number.strip() and re.search(pat, str(pr.pages_printed)):
+				if p['id'] == pr.printerOwner.id and re.search(pat, str(pr.pages_printed)):
 					p['last_report'] = pr.as_json()
 					if timezone.make_aware( datetime.datetime.strptime(todate,'%Y-%m-%d') - datetime.timedelta(days = 7),timezone.get_default_timezone()) > pr.date:
 						p['warning'] = True
