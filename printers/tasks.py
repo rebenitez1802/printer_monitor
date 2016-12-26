@@ -271,7 +271,7 @@ def procesXmlFiles(createprinter = False):
 					if obj.mac_address and obj.mac_address.strip()!= '':
 						if Printer.objects.filter(mac_address = obj.mac_address).count() == 1:
 							p = Printer.objects.get(mac_address = obj.mac_address)
-						elif: Printer.objects.filter(mac_address = obj.mac_address).count() > 1 and obj.serial_number and obj.serial_number.strip() != '':
+						elif Printer.objects.filter(mac_address = obj.mac_address).count() > 1 and obj.serial_number and obj.serial_number.strip() != '':
 							p = Printer.objects.get(mac_address = obj.mac_address, serial_number = obj.serial_number)
 						else:
 							p = None
