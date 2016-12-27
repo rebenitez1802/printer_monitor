@@ -19,7 +19,7 @@ from django.conf.urls import include
 from django.views.generic.base import RedirectView
 
 urlpatterns = [
-    url(r'^$', RedirectView.as_view(url='customer/')),
+    url(r'^$', RedirectView.as_view(url='printers/customer/')),
     url(r'^admin/', admin.site.urls),
   
     
