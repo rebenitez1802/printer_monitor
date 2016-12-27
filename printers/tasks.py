@@ -233,7 +233,7 @@ def procesXmlFiles(createprinter = False):
 							print attr[1].text
 							obj.ip_address = attr[1].text
 					elif attr[0].text == 'DeviceMacAddress':
-						if attr[1].text:
+						if attr[1].text.strip():
 							print attr[1].text
 							obj.mac_address = attr[1].text
 					elif attr[0].text == 'DeviceHostName':
@@ -245,7 +245,7 @@ def procesXmlFiles(createprinter = False):
 							print attr[1].text
 							obj.model = attr[1].text
 					elif attr[0].text == 'DeviceSerialNumber':
-						if attr[1].text:
+						if attr[1].text.strip():
 							print attr[1].text
 							obj.serial_number = attr[1].text
 
@@ -257,7 +257,7 @@ def procesXmlFiles(createprinter = False):
 						if attr[1].text:
 							print attr[1].text
 							obj.status = attr[1].text
-					elif attr[0].text == 'DevicePagesPrinted':
+					elif attr[0].text == 'totalUsagePagesPrinted': #totalUsagePagesPrinted
 						if attr[1].text:
 							print attr[1].text
 							obj.pages_printed = attr[1].text
