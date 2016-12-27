@@ -461,8 +461,8 @@ def center(request, center_id):
 	breadcrumbs.append({'url': '/customer/', 'title':'Clientes'})
 	if center_id:
 		c = Center.objects.get(pk = center_id)
-		breadcrumbs.append({'url':'/customer/%s' % c.customer.id, 'title': c.customer.name})
-		breadcrumbs.append({'url':'/center/%s' % center_id, 'title': c.name})
+		breadcrumbs.append({'url':'/printers/customer/%s' % c.customer.id, 'title': c.customer.name})
+		breadcrumbs.append({'url':'/printers/center/%s' % center_id, 'title': c.name})
 	else:
 		breadcrumbs.append({'url':'/center/', 'title': 'Todas las Impresoras'})
 	return render(request,'reportCent.html',{'center_id':center_id, 'breadcrumbs': breadcrumbs})
