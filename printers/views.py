@@ -446,7 +446,7 @@ def reportByCenter(request, center_id):
 @login_required()
 def report(request, customer_id = None):
 	breadcrumbs = []
-	breadcrumbs.append({'url': '/customer/', 'title':'Clientes'})
+	breadcrumbs.append({'url': '/printers/customer/', 'title':'Clientes'})
 	if not customer_id:
 		return render(request,'report.html', {'breadcrumbs': breadcrumbs})
 	else:
@@ -458,7 +458,7 @@ def report(request, customer_id = None):
 def center(request, center_id):
 	
 	breadcrumbs = []
-	breadcrumbs.append({'url': '/customer/', 'title':'Clientes'})
+	breadcrumbs.append({'url': '/printers/customer/', 'title':'Clientes'})
 	if center_id:
 		c = Center.objects.get(pk = center_id)
 		breadcrumbs.append({'url':'/printers/customer/%s' % c.customer.id, 'title': c.customer.name})
