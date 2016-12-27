@@ -73,7 +73,7 @@
             xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
         }
       },
-       url: '/login'+next_url,
+       url: '/printers/login'+next_url,
        method: 'POST',
        data:{
         user: $('#user').val(),

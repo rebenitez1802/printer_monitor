@@ -113,7 +113,7 @@ def getAllAlertsMailsMsg(alerts):
 
 @shared_task
 def generateNoReportAlert(maxDaysNoReport = 7):
-	l_printers = Printer.objects.filter(Q(last_report__date__lte=datetime.now()-timedelta(days=maxDaysNoReport)) | Q(last_report__status = 'Desconectado') | Q(last_report__isnull = True ))
+	l_printers = Printer.objects.filter(Q(last_report__date__lte=datetime.now()-timedelta(days=maxDaysNoReport)))
 	for p in l_printers:
 		a = Alert()
 		a.printerOwner_id = p.id

@@ -122,7 +122,7 @@
   <script src="{% static 'js/jquery.dataTables.min.js'%}"></script>
   <script>
     
-    var url =  '/api/report/printerReport';
+    var url =  '/printers/api/report/printerReport';
         
     /*var dataTable = null;
     function loadDT(){
@@ -188,7 +188,7 @@
        });*/
       
        $('#pdf-btn').click(function(){
-          var urlpdf = '/report/generatePdf'
+          var urlpdf = '/printers/report/generatePdf'
           var params = '?format=pdf';
           if($('#year_sel').val() !== '' && $('#month_sel').val() !== '' ) {
         
@@ -219,7 +219,7 @@
           
        });
        $('#xls-btn').click(function(){
-          var urlpdf = '/report/generatePdf'
+          var urlpdf = '/printers/report/generatePdf'
           var params = '?format=xls';
           if($('#year_sel').val() !== '' && $('#month_sel').val() !== '' ) {
         
