@@ -98,6 +98,7 @@ def getAllAlertsMailsMsg(alerts):
 			if al.printerOwner:
 				tr = tr + '<td>%s</td>' % al.printerOwner.center.customer.name
 				tr = tr + '<td>%s</td>' % al.printerOwner.center.name
+				tr = tr + '<td>%s</td>' % al.printerOwner.serial_number
 			else:
 				tr = tr + '<td></td><td></td><td></td>'
 
