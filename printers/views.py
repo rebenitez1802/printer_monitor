@@ -379,6 +379,10 @@ def reportJson(request):
 	if not (request.user.groups.filter(name__in = ['PrinterAdmin', 'SuperAdmin']) or request.user.is_superuser):
 		
 		q = Customer.objects.filter(user = request.user)
+	
+	now = datetime.datetime.now()
+	q = q.filter(center__printer__last_report__date__year= now.year,
+                 center__printer__last_report__date__month= now.month)
 	q = q.annotate(total_pages= Sum('center__printer__last_report__pages_printed')).annotate(total_printers= Count('center__printer', distinct=True)).annotate(total_centers = Count('center',distinct = True))
 	q = q.annotate(total_disconect = Sum(Case(When(center__printer__last_report__status__in = ['Error','Desconectado'], then = 1),When(center__printer__last_report__status__isnull = True, then = 0), default=0, output_field=IntegerField())))
 	q = q.annotate(total_low_toner = Sum(Case(When(center__printer__last_report__toner_level__regex = r'(K\(([0-9]|10|\?)\))', then = 1),When(center__printer__last_report__toner_level__isnull = True, then = 0), default=0, output_field=IntegerField())))
