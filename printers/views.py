@@ -387,6 +387,7 @@ def getActualTotalPagesByCenter(cent_id):
 	res = 0
 	for p in p_list:
 		res = res + getActualTotalPagesByPrinter(p)
+	return res
 
 def getActualTotalPagesByCust(id_cust):
 
@@ -394,6 +395,7 @@ def getActualTotalPagesByCust(id_cust):
 	pages = 0
 	for cent in c_list:
 		pages = pages + getActualTotalPagesByCenter(cent.id)
+	return pages
 
 @login_required()
 def reportJson(request):
