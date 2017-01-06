@@ -169,7 +169,7 @@ def generatePrinterReportPdf(request):
 		else:
 			if p['last_report']:
 				if p['last_report']['pages_printed']:
-					totalpcolor = totalpmono + int(p['last_report']['pages_printed'])
+					totalpcolor = totalpcolor + int(p['last_report']['pages_printed'])
 					countPages(p,rrcolor)
 	rrdatamono = []
 	_hmono = len(rrmono)/2 if len(rrmono)%2 == 0 else len(rrmono)/2 + 1
@@ -371,6 +371,30 @@ def reporPrinterJson(request):
 
 	return JsonResponse(res)
 
+def getActualTotalPagesByPrinter(p):
+	now = datetime.datetime.now()
+	if p.last_report != None and p.last_report.pages_printed != None:
+		if p.last_report.date.month == now.month and p.last_report.date.year == now.year:
+			return p.last_report.pages_printed
+		else
+			return 0
+	else:
+		return 0
+
+
+def getActualTotalPagesByCenter(cent_id):
+	p_list = Printer.objects.filter(center__id = cent_id)
+	res = 0
+	for p in p_list:
+		res = res + getActualTotalPagesByPrinter(p)
+
+def getActualTotalPagesByCust(id_cust):
+
+	c_list = Center.objects.filter(customer__id = id_cust)
+	pages = 0
+	for cent in c_list:
+		pages = pages + getActualTotalPagesByCenter(cent.id)
+
 @login_required()
 def reportJson(request):
 	res = {}
@@ -380,14 +404,17 @@ def reportJson(request):
 		
 		q = Customer.objects.filter(user = request.user)
 	
-	now = datetime.datetime.now()
-	q = q.filter(center__printer__last_report__date__year= now.year,
-                 center__printer__last_report__date__month= now.month)
+	
+	
 	q = q.annotate(total_pages= Sum('center__printer__last_report__pages_printed')).annotate(total_printers= Count('center__printer', distinct=True)).annotate(total_centers = Count('center',distinct = True))
 	q = q.annotate(total_disconect = Sum(Case(When(center__printer__last_report__status__in = ['Error','Desconectado'], then = 1),When(center__printer__last_report__status__isnull = True, then = 0), default=0, output_field=IntegerField())))
 	q = q.annotate(total_low_toner = Sum(Case(When(center__printer__last_report__toner_level__regex = r'(K\(([0-9]|10|\?)\))', then = 1),When(center__printer__last_report__toner_level__isnull = True, then = 0), default=0, output_field=IntegerField())))
 	
+
+
 	res['data'] =[ob.as_json() for ob in q]
+	for cust in res['data']:
+		cust['total_pages'] = getActualTotalPagesByCust(cust['customer_id'])
 	return JsonResponse(res)
 
 @login_required()
@@ -404,7 +431,8 @@ def reportByCostumer(request, costumer_id):
 	q = q.annotate(total_low_toner = Sum(Case(When(printer__last_report__toner_level__regex = r'(K\(([0-9]|10|\?)\))', then = 1),When(printer__last_report__toner_level__isnull = True, then = 0), default=0, output_field=IntegerField())))
 	
 	res['data'] =[ob.as_json() for ob in q]
-
+	for cen in res['data']:
+		cen['total_pages'] = getActualTotalPagesByCenter(cen['center_id'])
 	'''for cen in res['data']:
 		pl = Printer.objects.filter(center__id = cen['center_id'])
 		cen['total_printers'] = len(pl)
@@ -444,7 +472,12 @@ def reportByCenter(request, center_id):
 		q = Printer.objects.filter(center__customer__user = request.user)
 	if center_id:
 		q = q.filter(center__id = center_id )
+	for p in q:
+		p.pages_printed = getActualTotalPagesByPrinter(p)
 	res['data'] =[ob.as_json() for ob in q]
+
+
+
 	return JsonResponse(res)
 
 @login_required()
