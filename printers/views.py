@@ -477,7 +477,8 @@ def reportByCenter(request, center_id):
 	for p in q:
 		p.pages_printed = getActualTotalPagesByPrinter(p)
 	res['data'] =[ob.as_json() for ob in q]
-
+	for p in res['data']:
+		p['pages_printed'] = getActualTotalPagesByPrinter(Printer.objects.get(pk =p['id']))
 
 
 	return JsonResponse(res)
