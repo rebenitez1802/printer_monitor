@@ -376,7 +376,7 @@ def getActualTotalPagesByPrinter(p):
 	if p.last_report != None and p.last_report.pages_printed != None:
 		if p.last_report.date.month == now.month and p.last_report.date.year == now.year:
 			return p.last_report.pages_printed
-		else
+		else:
 			return 0
 	else:
 		return 0
